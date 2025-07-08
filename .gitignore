@@ -1,0 +1,13 @@
+# Dependências
+/node_modules
+
+# Arquivos de compilação
+/dist
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de IDE
+.vscode
