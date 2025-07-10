@@ -1,172 +1,358 @@
 import {
-	INodeExecutionData,
-	INodeType,
-	INodeTypeDescription,
-	IExecuteFunctions,
-	NodeConnectionType,
+  IExecuteFunctions,
+  INodeExecutionData,
+  INodeType,
+  INodeTypeDescription,
+  JsonObject,
+  NodeConnectionType,
 } from 'n8n-workflow';
 
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
 export class Poli implements INodeType {
-	description: INodeTypeDescription = {
-		displayName: 'Poli',
-		name: 'poli',
-		icon: 'file:poli.svg',
-		group: ['transform'],
-		version: 1,
-		description: 'Interage com a API da Poli',
-		defaults: {
-			name: 'Poli',
-		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
-		credentials: [
-			{
-				name: 'poliApi',
-				required: true,
-			},
-		],
-		properties: [
-			{
-				displayName: 'Resource',
-				name: 'resource',
-				type: 'options',
-				options: [
-					{ name: 'Channel', value: 'channel' },
-					{ name: 'Contact', value: 'contact' },
-					{ name: 'Message', value: 'message' },
-				],
-				default: 'channel',
-				required: true,
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				displayOptions: {
-					show: {
-						resource: ['channel', 'contact', 'message'],
-					},
-				},
-				options: [
-					{ name: 'List', value: 'list' },
-					{ name: 'Send', value: 'send' },
-				],
-				default: 'list',
-				required: true,
-			},
-			{
-				displayName: 'Customer ID',
-				name: 'customerId',
-				type: 'string',
-				required: true,
-				default: '',
-				description: 'ID do cliente (customer)',
-			},
-			{
-				displayName: 'Channel ID',
-				name: 'channelId',
-				type: 'string',
-				required: false,
-				displayOptions: {
-					show: {
-						resource: ['message'],
-						operation: ['send'],
-					},
-				},
-				default: '',
-			},
-			{
-				displayName: 'Contact ID',
-				name: 'contactId',
-				type: 'string',
-				required: false,
-				displayOptions: {
-					show: {
-						resource: ['message'],
-						operation: ['send'],
-					},
-				},
-				default: '',
-			},
-			{
-				displayName: 'User ID',
-				name: 'userId',
-				type: 'string',
-				required: false,
-				displayOptions: {
-					show: {
-						resource: ['message'],
-						operation: ['send'],
-					},
-				},
-				default: '',
-			},
-			{
-				displayName: 'Message Text',
-				name: 'messageText',
-				type: 'string',
-				required: false,
-				displayOptions: {
-					show: {
-						resource: ['message'],
-						operation: ['send'],
-					},
-				},
-				default: '',
-			},
-		],
-	};
+  description: INodeTypeDescription = {
+    displayName: 'Poli',
+    name: 'poli',
+    icon: 'file:poli.svg',
+    group: ['output'],
+    version: 1,
+    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+    description: 'Nó para interagir com a API da Poli',
+    defaults: {
+      name: 'Poli',
+    },
+    inputs: [NodeConnectionType.Main],
+    outputs: [NodeConnectionType.Main],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
+    properties: [
+      {
+        displayName: 'Resource',
+        name: 'resource',
+        type: 'options',
+        options: [
+          { name: 'Channel', value: 'channel' },
+          { name: 'Contact', value: 'contact' },
+          { name: 'Message', value: 'message' },
+        ],
+        default: 'channel',
+      },
+      // Operações para Channel
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: {
+          show: {
+            resource: ['channel'],
+          },
+        },
+        options: [
+          {
+            name: 'List Channels',
+            value: 'listChannels',
+          },
+        ],
+        default: 'listChannels',
+      },
+      {
+        displayName: 'Customer ID',
+        name: 'customerId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['channel'],
+            operation: ['listChannels'],
+          },
+        },
+      },
 
-	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const items = this.getInputData();
-		const returnData: INodeExecutionData[] = [];
+      // Operações para Contact
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+          },
+        },
+        options: [
+          {
+            name: 'List Contacts',
+            value: 'listContacts',
+          },
+        ],
+        default: 'listContacts',
+      },
+      {
+        displayName: 'Account ID',
+        name: 'accountId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+            operation: ['listContacts'],
+          },
+        },
+      },
+      {
+        displayName: 'Include',
+        name: 'contactInclude',
+        type: 'multiOptions',
+        options: [
+          { name: 'Attributes', value: 'attributes' },
+          { name: 'Metadata', value: 'metadata' },
+          { name: 'Organization', value: 'organization' },
+          { name: 'Addresses', value: 'addresses' },
+        ],
+        default: ['attributes'],
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+            operation: ['listContacts'],
+          },
+        },
+      },
 
-		for (let i = 0; i < items.length; i++) {
-			const resource = this.getNodeParameter('resource', i) as string;
-			const operation = this.getNodeParameter('operation', i) as string;
-			const customerId = this.getNodeParameter('customerId', i) as string;
+      // Operações para Message
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: {
+          show: {
+            resource: ['message'],
+          },
+        },
+        options: [
+          {
+            name: 'Send Message',
+            value: 'sendMessage',
+          },
+        ],
+        default: 'sendMessage',
+      },
+      {
+        displayName: 'Account ID',
+        name: 'accountIdMessage',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'Account Channel UUID',
+        name: 'accountChannelUuid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'Contact UUID',
+        name: 'contactUuid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'Contact Channel UID',
+        name: 'contactChannelUid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'User UUID',
+        name: 'userUuid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'User Name',
+        name: 'userName',
+        type: 'string',
+        default: 'Jorge Amado',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'File ID (Media)',
+        name: 'fileId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'Caption',
+        name: 'caption',
+        type: 'string',
+        default: 'Teste de mensagem',
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
+        displayName: 'Text',
+        name: 'text',
+        type: 'string',
+        default: 'Teste de mensagem',
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+    ],
+  };
 
-			try {
-				if (resource === 'channel' && operation === 'list') {
-					const endpoint = `/customers/${customerId}/channels`;
-					const response = await apiRequest.call(this, 'GET', endpoint);
-					const channels = Array.isArray(response) ? response : [response];
-					returnData.push(...channels.map((ch: any) => ({ json: ch })));
+  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+    const items = this.getInputData();
+    const returnData: INodeExecutionData[] = [];
 
-				} else if (resource === 'contact' && operation === 'list') {
-					const endpoint = `/customers/${customerId}/contacts`;
-					const response = await apiRequest.call(this, 'GET', endpoint);
-					const contacts = Array.isArray(response) ? response : [response];
-					returnData.push(...contacts.map((contact: any) => ({ json: contact })));
+    for (let i = 0; i < items.length; i++) {
+      try {
+        const resource = this.getNodeParameter('resource', i) as string;
+        const operation = this.getNodeParameter('operation', i) as string;
 
-				} else if (resource === 'message' && operation === 'send') {
-					const channelId = this.getNodeParameter('channelId', i) as string;
-					const contactId = this.getNodeParameter('contactId', i) as string;
-					const userId = this.getNodeParameter('userId', i) as string;
-					const messageText = this.getNodeParameter('messageText', i) as string;
+        let responseData;
 
-					const endpoint = `/customers/${customerId}/whatsapp/send_text/channels/${channelId}/contacts/${contactId}/users/${userId}`;
-					const body = { usermsg: messageText };
-					console.log({
-	url: endpoint,
-	body: { text: messageText },
-});
+        if (resource === 'channel' && operation === 'listChannels') {
+          const customerId = this.getNodeParameter('customerId', i);
+          responseData = await apiRequest.call(
+            this,
+            'GET',
+            `/accounts/${customerId}/account-channels/?include=*`
+          );
+        } else if (resource === 'contact' && operation === 'listContacts') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const includeFields = this.getNodeParameter('contactInclude', i) as string[];
+          const includeParam = includeFields.length > 0 ? includeFields.join(',') : 'attributes';
+          responseData = await apiRequest.call(
+            this,
+            'GET',
+            `/accounts/${accountId}/contacts?include=${includeParam}`
+          );
+        } else if (resource === 'message' && operation === 'sendMessage') {
+          const accountId = this.getNodeParameter('accountIdMessage', i);
+          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+          const contactUuid = this.getNodeParameter('contactUuid', i);
+          const contactChannelUid = this.getNodeParameter('contactChannelUid', i);
+          const userUuid = this.getNodeParameter('userUuid', i);
+          const userName = this.getNodeParameter('userName', i);
+          const fileId = this.getNodeParameter('fileId', i);
+          const caption = this.getNodeParameter('caption', i);
+          const text = this.getNodeParameter('text', i);
 
-					const response = await apiRequest.call(this, 'POST', endpoint, body);
-					returnData.push({ json: response });
-				} else {
-					throw new NodeApiError(this.getNode(), {
-						message: `Resource ${resource} with operation ${operation} not supported.`,
-					});
-				}
-			} catch (error) {
-				throw new NodeApiError(this.getNode(), error as any);
-			}
-		}
+          const body = {
+            provider: 'WHATSAPP',
+            account_channel_uuid: accountChannelUuid,
+            type: 'MEDIA',
+            version: 'v3',
+            direction: 'OUT',
+            contact: {
+              type: 'PERSON',
+              contact_uuid: contactUuid,
+              contact_channel_uid: contactChannelUid,
+            },
+            author: {
+              type: 'USER',
+              user_uuid: userUuid,
+              name: userName,
+            },
+            components: [
+              {
+                type: 'body',
+                parameters: [
+                  {
+                    type: 'text',
+                    text,
+                  },
+                ],
+              },
+              {
+                type: 'attachment',
+                parameters: [
+                  {
+                    type: 'image',
+                    image: {
+                      file_id: fileId,
+                      caption,
+                    },
+                  },
+                ],
+              },
+            ],
+          };
 
-		return [returnData];
-	}
+          responseData = await apiRequest.call(
+            this,
+            'POST',
+            `/accounts/${accountId}/messages`,
+            body
+          );
+        }
+
+        returnData.push({ json: responseData });
+      } catch (error) {
+        throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
+      }
+    }
+
+    return [returnData];
+  }
 }

@@ -22,9 +22,7 @@
         "lint:fix": "eslint nodes credentials package.json --fix",
         "test": "jest"
     },
-    "files": [
-        "dist"
-    ],
+    "files": ["dist", "nodes/Poli/poli.svg"],
     "n8n": {
         "n8nNodesApiVersion": 1,
         "nodes": [
