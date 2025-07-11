@@ -156,88 +156,25 @@ export class Poli implements INodeType {
         },
       },
       {
+        displayName: 'Phone Number',
+        name: 'phoneNumber',
+        type: 'string',
+        default: '',
+        required: true,
+        description: 'Número de telefone do contato no formato internacional, ex: +5511999999999',
+        displayOptions: {
+          show: {
+            resource: ['message'],
+            operation: ['sendMessage'],
+          },
+        },
+      },
+      {
         displayName: 'Account Channel UUID',
         name: 'accountChannelUuid',
         type: 'string',
         default: '',
         required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'Contact UUID',
-        name: 'contactUuid',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'Contact Channel UID',
-        name: 'contactChannelUid',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'User UUID',
-        name: 'userUuid',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'User Name',
-        name: 'userName',
-        type: 'string',
-        default: 'Jorge Amado',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'File ID (Media)',
-        name: 'fileId',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
-        },
-      },
-      {
-        displayName: 'Caption',
-        name: 'caption',
-        type: 'string',
-        default: 'Teste de mensagem',
         displayOptions: {
           show: {
             resource: ['message'],
@@ -288,63 +225,26 @@ export class Poli implements INodeType {
             `/accounts/${accountId}/contacts?include=${includeParam}`
           );
         } else if (resource === 'message' && operation === 'sendMessage') {
-          const accountId = this.getNodeParameter('accountIdMessage', i);
-          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
-          const contactUuid = this.getNodeParameter('contactUuid', i);
-          const contactChannelUid = this.getNodeParameter('contactChannelUid', i);
-          const userUuid = this.getNodeParameter('userUuid', i);
-          const userName = this.getNodeParameter('userName', i);
-          const fileId = this.getNodeParameter('fileId', i);
-          const caption = this.getNodeParameter('caption', i);
-          const text = this.getNodeParameter('text', i);
+          const accountId = this.getNodeParameter('accountIdMessage', i) as string;
+          const phoneNumber = this.getNodeParameter('phoneNumber', i) as string;
+          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
+          const text = this.getNodeParameter('text', i) as string;
 
           const body = {
             provider: 'WHATSAPP',
             account_channel_uuid: accountChannelUuid,
-            type: 'MEDIA',
+            type: 'TEXT',
             version: 'v3',
-            direction: 'OUT',
-            contact: {
-              type: 'PERSON',
-              contact_uuid: contactUuid,
-              contact_channel_uid: contactChannelUid,
-            },
-            author: {
-              type: 'USER',
-              user_uuid: userUuid,
-              name: userName,
-            },
-            components: [
-              {
-                type: 'body',
-                parameters: [
-                  {
-                    type: 'text',
-                    text,
-                  },
-                ],
+            components: {
+              body: {
+                text,
               },
-              {
-                type: 'attachment',
-                parameters: [
-                  {
-                    type: 'image',
-                    image: {
-                      file_id: fileId,
-                      caption,
-                    },
-                  },
-                ],
-              },
-            ],
+            },
           };
 
-          responseData = await apiRequest.call(
-            this,
-            'POST',
-            `/accounts/${accountId}/messages`,
-            body
-          );
+          const endpoint = `/accounts/${accountId}/contacts/${encodeURIComponent(phoneNumber)}/messages?include=contact`;
+
+          responseData = await apiRequest.call(this, 'POST', endpoint, body);
         }
 
         returnData.push({ json: responseData });
