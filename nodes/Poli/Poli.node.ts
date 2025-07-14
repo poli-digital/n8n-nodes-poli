@@ -17,7 +17,6 @@ export class Poli implements INodeType {
     icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
-    subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
     description: 'Nó para interagir com a API da Poli',
     defaults: {
       name: 'Poli',
@@ -39,11 +38,12 @@ export class Poli implements INodeType {
           { name: 'Channel', value: 'channel' },
           { name: 'Contact', value: 'contact' },
           { name: 'Message', value: 'message' },
+          { name: 'Template', value: 'template' },
         ],
         default: 'channel',
       },
 
-      // === CHANNEL ===
+      // CHANNEL
       {
         displayName: 'Operation',
         name: 'operation',
@@ -53,9 +53,7 @@ export class Poli implements INodeType {
             resource: ['channel'],
           },
         },
-        options: [
-          { name: 'List Channels', value: 'listChannels' },
-        ],
+        options: [{ name: 'List Channels', value: 'listChannels' }],
         default: 'listChannels',
       },
       {
@@ -72,7 +70,7 @@ export class Poli implements INodeType {
         },
       },
 
-      // === CONTACT ===
+      // CONTACT
       {
         displayName: 'Operation',
         name: 'operation',
@@ -82,9 +80,7 @@ export class Poli implements INodeType {
             resource: ['contact'],
           },
         },
-        options: [
-          { name: 'List Contacts', value: 'listContacts' },
-        ],
+        options: [{ name: 'List Contacts', value: 'listContacts' }],
         default: 'listContacts',
       },
       {
@@ -119,7 +115,7 @@ export class Poli implements INodeType {
         },
       },
 
-      // === MESSAGE ===
+      // MESSAGE
       {
         displayName: 'Operation',
         name: 'operation',
@@ -130,14 +126,11 @@ export class Poli implements INodeType {
           },
         },
         options: [
-          { name: 'Send Message by Phone Number', value: 'sendMessage' },
-          { name: 'Send Message by Contact ID', value: 'sendMessageByContactId' },
-          { name: 'Send Template by Contact ID', value: 'sendTemplateByContactId' },
+          { name: 'Send Message By Phone Number', value: 'sendMessage' },
+          { name: 'Send Message By Contact ID', value: 'sendMessageByContactId' },
         ],
         default: 'sendMessage',
       },
-
-      // -- sendMessage (via phone number)
       {
         displayName: 'Account ID',
         name: 'accountIdMessage',
@@ -157,7 +150,6 @@ export class Poli implements INodeType {
         type: 'string',
         default: '',
         required: true,
-        description: 'Número no formato internacional. Ex: +5511999999999',
         displayOptions: {
           show: {
             resource: ['message'],
@@ -174,7 +166,7 @@ export class Poli implements INodeType {
         displayOptions: {
           show: {
             resource: ['message'],
-            operation: ['sendMessage'],
+            operation: ['sendMessage', 'sendMessageByContactId'],
           },
         },
       },
@@ -186,12 +178,10 @@ export class Poli implements INodeType {
         displayOptions: {
           show: {
             resource: ['message'],
-            operation: ['sendMessage'],
+            operation: ['sendMessage', 'sendMessageByContactId'],
           },
         },
       },
-
-      // -- sendMessageByContactId
       {
         displayName: 'Contact ID',
         name: 'contactId',
@@ -205,33 +195,36 @@ export class Poli implements INodeType {
           },
         },
       },
+
+      // TEMPLATE
       {
-        displayName: 'Account Channel UUID',
-        name: 'accountChannelUuid',
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: {
+          show: {
+            resource: ['template'],
+          },
+        },
+        options: [
+          { name: 'List Templates', value: 'listTemplates' },
+          { name: 'Send Template By Contact ID', value: 'sendTemplateByContactId' },
+        ],
+        default: 'listTemplates',
+      },
+      {
+        displayName: 'Account ID',
+        name: 'accountIdTemplate',
         type: 'string',
         default: '',
         required: true,
         displayOptions: {
           show: {
-            resource: ['message'],
-            operation: ['sendMessageByContactId'],
+            resource: ['template'],
+            operation: ['listTemplates'],
           },
         },
       },
-      {
-        displayName: 'Text',
-        name: 'text',
-        type: 'string',
-        default: 'Teste de mensagem a partir da OmniAPI v3',
-        displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessageByContactId'],
-          },
-        },
-      },
-
-      // -- sendTemplateByContactId
       {
         displayName: 'Contact ID',
         name: 'contactId',
@@ -240,7 +233,7 @@ export class Poli implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['message'],
+            resource: ['template'],
             operation: ['sendTemplateByContactId'],
           },
         },
@@ -253,7 +246,7 @@ export class Poli implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['message'],
+            resource: ['template'],
             operation: ['sendTemplateByContactId'],
           },
         },
@@ -266,7 +259,7 @@ export class Poli implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['message'],
+            resource: ['template'],
             operation: ['sendTemplateByContactId'],
           },
         },
@@ -304,7 +297,7 @@ export class Poli implements INodeType {
         ],
         displayOptions: {
           show: {
-            resource: ['message'],
+            resource: ['template'],
             operation: ['sendTemplateByContactId'],
           },
         },
@@ -342,7 +335,7 @@ export class Poli implements INodeType {
         ],
         displayOptions: {
           show: {
-            resource: ['message'],
+            resource: ['template'],
             operation: ['sendTemplateByContactId'],
           },
         },
@@ -361,30 +354,15 @@ export class Poli implements INodeType {
 
         let responseData;
 
-        // === CHANNELS ===
         if (resource === 'channel' && operation === 'listChannels') {
           const customerId = this.getNodeParameter('customerId', i);
-          responseData = await apiRequest.call(
-            this,
-            'GET',
-            `/accounts/${customerId}/account-channels/?include=*`
-          );
-        }
-
-        // === CONTACTS ===
-        else if (resource === 'contact' && operation === 'listContacts') {
+          responseData = await apiRequest.call(this, 'GET', `/accounts/${customerId}/account-channels/?include=*`);
+        } else if (resource === 'contact' && operation === 'listContacts') {
           const accountId = this.getNodeParameter('accountId', i);
           const includeFields = this.getNodeParameter('contactInclude', i) as string[];
           const includeParam = includeFields.length > 0 ? includeFields.join(',') : 'attributes';
-          responseData = await apiRequest.call(
-            this,
-            'GET',
-            `/accounts/${accountId}/contacts?include=${includeParam}`
-          );
-        }
-
-        // === MESSAGE by PHONE ===
-        else if (resource === 'message' && operation === 'sendMessage') {
+          responseData = await apiRequest.call(this, 'GET', `/accounts/${accountId}/contacts?include=${includeParam}`);
+        } else if (resource === 'message' && operation === 'sendMessage') {
           const accountId = this.getNodeParameter('accountIdMessage', i) as string;
           const phoneNumber = this.getNodeParameter('phoneNumber', i) as string;
           const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
@@ -395,17 +373,12 @@ export class Poli implements INodeType {
             account_channel_uuid: accountChannelUuid,
             type: 'TEXT',
             version: 'v3',
-            components: {
-              body: { text },
-            },
+            components: { body: { text } },
           };
 
           const endpoint = `/accounts/${accountId}/contacts/${encodeURIComponent(phoneNumber)}/messages?include=contact`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
-        }
-
-        // === MESSAGE by CONTACT UUID ===
-        else if (resource === 'message' && operation === 'sendMessageByContactId') {
+        } else if (resource === 'message' && operation === 'sendMessageByContactId') {
           const contactId = this.getNodeParameter('contactId', i) as string;
           const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
           const text = this.getNodeParameter('text', i) as string;
@@ -416,17 +389,12 @@ export class Poli implements INodeType {
             type: 'TEXT',
             version: 'v3',
             direction: 'OUT',
-            components: {
-              body: { text },
-            },
+            components: { body: { text } },
           };
 
           const endpoint = `/contacts/${contactId}/messages`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
-        }
-
-        // === TEMPLATE ===
-        else if (resource === 'message' && operation === 'sendTemplateByContactId') {
+        } else if (resource === 'template' && operation === 'sendTemplateByContactId') {
           const contactId = this.getNodeParameter('contactId', i) as string;
           const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
           const templateUuid = this.getNodeParameter('templateUuid', i) as string;
@@ -464,6 +432,11 @@ export class Poli implements INodeType {
 
           const endpoint = `/contacts/${contactId}/messages`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
+        } else if (resource === 'template' && operation === 'listTemplates') {
+          const accountId = this.getNodeParameter('accountIdTemplate', i) as string;
+          const include = 'key,version,status,message,team,metadata';
+          const endpoint = `/accounts/${accountId}/templates?include=${include}`;
+          responseData = await apiRequest.call(this, 'GET', endpoint);
         }
 
         returnData.push({ json: responseData });
