@@ -39,6 +39,8 @@ export class Poli implements INodeType {
           { name: 'Contact', value: 'contact' },
           { name: 'Message', value: 'message' },
           { name: 'Template', value: 'template' },
+          { name: 'App', value: 'app' },
+          { name: 'Webhook', value: 'webhook' },
         ],
         default: 'channel',
       },
@@ -48,11 +50,7 @@ export class Poli implements INodeType {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
-        displayOptions: {
-          show: {
-            resource: ['channel'],
-          },
-        },
+        displayOptions: { show: { resource: ['channel'] } },
         options: [{ name: 'List Channels', value: 'listChannels' }],
         default: 'listChannels',
       },
@@ -75,11 +73,7 @@ export class Poli implements INodeType {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
-        displayOptions: {
-          show: {
-            resource: ['contact'],
-          },
-        },
+        displayOptions: { show: { resource: ['contact'] } },
         options: [{ name: 'List Contacts', value: 'listContacts' }],
         default: 'listContacts',
       },
@@ -120,11 +114,7 @@ export class Poli implements INodeType {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
-        displayOptions: {
-          show: {
-            resource: ['message'],
-          },
-        },
+        displayOptions: { show: { resource: ['message'] } },
         options: [
           { name: 'Send Message By Phone Number', value: 'sendMessage' },
           { name: 'Send Message By Contact ID', value: 'sendMessageByContactId' },
@@ -138,10 +128,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
+          show: { resource: ['message'], operation: ['sendMessage'] },
         },
       },
       {
@@ -151,10 +138,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['message'],
-            operation: ['sendMessage'],
-          },
+          show: { resource: ['message'], operation: ['sendMessage'] },
         },
       },
       {
@@ -201,11 +185,7 @@ export class Poli implements INodeType {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
-        displayOptions: {
-          show: {
-            resource: ['template'],
-          },
-        },
+        displayOptions: { show: { resource: ['template'] } },
         options: [
           { name: 'List Templates', value: 'listTemplates' },
           { name: 'Send Template By Contact ID', value: 'sendTemplateByContactId' },
@@ -219,10 +199,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['listTemplates'],
-          },
+          show: { resource: ['template'], operation: ['listTemplates'] },
         },
       },
       {
@@ -232,10 +209,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['sendTemplateByContactId'],
-          },
+          show: { resource: ['template'], operation: ['sendTemplateByContactId'] },
         },
       },
       {
@@ -245,10 +219,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['sendTemplateByContactId'],
-          },
+          show: { resource: ['template'], operation: ['sendTemplateByContactId'] },
         },
       },
       {
@@ -258,10 +229,7 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['sendTemplateByContactId'],
-          },
+          show: { resource: ['template'], operation: ['sendTemplateByContactId'] },
         },
       },
       {
@@ -296,10 +264,7 @@ export class Poli implements INodeType {
           },
         ],
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['sendTemplateByContactId'],
-          },
+          show: { resource: ['template'], operation: ['sendTemplateByContactId'] },
         },
       },
       {
@@ -334,10 +299,148 @@ export class Poli implements INodeType {
           },
         ],
         displayOptions: {
-          show: {
-            resource: ['template'],
-            operation: ['sendTemplateByContactId'],
-          },
+          show: { resource: ['template'], operation: ['sendTemplateByContactId'] },
+        },
+      },
+
+      // APP
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: { show: { resource: ['app'] } },
+        options: [{ name: 'Create App', value: 'createApp' }],
+        default: 'createApp',
+      },
+      {
+        displayName: 'Account ID',
+        name: 'accountId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Visibility',
+        name: 'visibility',
+        type: 'options',
+        options: [
+          { name: 'Public', value: 'public' },
+          { name: 'Private', value: 'private' },
+        ],
+        default: 'public',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'App Name',
+        name: 'appName',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Description',
+        name: 'description',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Responsible',
+        name: 'responsible',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Phone',
+        name: 'phone',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Email',
+        name: 'email',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+      {
+        displayName: 'Picture File ID',
+        name: 'pictureFileId',
+        type: 'string',
+        default: '',
+        required: false,
+        displayOptions: {
+          show: { resource: ['app'], operation: ['createApp'] },
+        },
+      },
+
+      // WEBHOOK
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: { show: { resource: ['webhook'] } },
+        options: [{ name: 'Create Webhook', value: 'createWebhook' }],
+        default: 'createWebhook',
+      },
+      {
+        displayName: 'Application ID',
+        name: 'applicationId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['webhook'], operation: ['createWebhook'] },
+        },
+      },
+      {
+        displayName: 'Webhook URL',
+        name: 'url',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: { resource: ['webhook'], operation: ['createWebhook'] },
+        },
+      },
+      {
+        displayName: 'Subscriptions',
+        name: 'subscriptions',
+        type: 'multiOptions',
+        options: [
+          { name: 'Organizations', value: 'organizations' },
+          { name: 'Chats', value: 'chats' },
+          { name: 'Contacts', value: 'contacts' },
+          { name: 'Users', value: 'users' },
+          { name: 'Applications', value: 'applications' },
+        ],
+        default: [],
+        required: true,
+        displayOptions: {
+          show: { resource: ['webhook'], operation: ['createWebhook'] },
         },
       },
     ],
@@ -351,7 +454,6 @@ export class Poli implements INodeType {
       try {
         const resource = this.getNodeParameter('resource', i) as string;
         const operation = this.getNodeParameter('operation', i) as string;
-
         let responseData;
 
         if (resource === 'channel' && operation === 'listChannels') {
@@ -360,13 +462,13 @@ export class Poli implements INodeType {
         } else if (resource === 'contact' && operation === 'listContacts') {
           const accountId = this.getNodeParameter('accountId', i);
           const includeFields = this.getNodeParameter('contactInclude', i) as string[];
-          const includeParam = includeFields.length > 0 ? includeFields.join(',') : 'attributes';
+          const includeParam = includeFields.join(',');
           responseData = await apiRequest.call(this, 'GET', `/accounts/${accountId}/contacts?include=${includeParam}`);
         } else if (resource === 'message' && operation === 'sendMessage') {
-          const accountId = this.getNodeParameter('accountIdMessage', i) as string;
-          const phoneNumber = this.getNodeParameter('phoneNumber', i) as string;
-          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
-          const text = this.getNodeParameter('text', i) as string;
+          const accountId = this.getNodeParameter('accountIdMessage', i);
+          const phoneNumber = this.getNodeParameter('phoneNumber', i);
+          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+          const text = this.getNodeParameter('text', i);
 
           const body = {
             provider: 'WHATSAPP',
@@ -376,12 +478,12 @@ export class Poli implements INodeType {
             components: { body: { text } },
           };
 
-          const endpoint = `/accounts/${accountId}/contacts/${encodeURIComponent(phoneNumber)}/messages?include=contact`;
+          const endpoint = `/accounts/${accountId}/contacts/${encodeURIComponent(phoneNumber?.toString() || '')}/messages?include=contact`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
         } else if (resource === 'message' && operation === 'sendMessageByContactId') {
-          const contactId = this.getNodeParameter('contactId', i) as string;
-          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
-          const text = this.getNodeParameter('text', i) as string;
+          const contactId = this.getNodeParameter('contactId', i);
+          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+          const text = this.getNodeParameter('text', i);
 
           const body = {
             provider: 'WHATSAPP',
@@ -395,14 +497,13 @@ export class Poli implements INodeType {
           const endpoint = `/contacts/${contactId}/messages`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
         } else if (resource === 'template' && operation === 'sendTemplateByContactId') {
-          const contactId = this.getNodeParameter('contactId', i) as string;
-          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
-          const templateUuid = this.getNodeParameter('templateUuid', i) as string;
+          const contactId = this.getNodeParameter('contactId', i);
+          const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+          const templateUuid = this.getNodeParameter('templateUuid', i);
           const headerParams = this.getNodeParameter('headerParams.parameter', i, []) as any[];
           const bodyParams = this.getNodeParameter('bodyParams.parameter', i, []) as any[];
 
           const components: any = {};
-
           if (headerParams.length > 0) {
             components.header = {
               parameters: headerParams.map((param) => ({
@@ -411,7 +512,6 @@ export class Poli implements INodeType {
               })),
             };
           }
-
           if (bodyParams.length > 0) {
             components.body = {
               parameters: bodyParams.map((param) => ({
@@ -430,13 +530,78 @@ export class Poli implements INodeType {
             components,
           };
 
-          const endpoint = `/contacts/${contactId}/messages`;
-          responseData = await apiRequest.call(this, 'POST', endpoint, body);
+          responseData = await apiRequest.call(this, 'POST', `/contacts/${contactId}/messages`, body);
         } else if (resource === 'template' && operation === 'listTemplates') {
-          const accountId = this.getNodeParameter('accountIdTemplate', i) as string;
-          const include = 'key,version,status,message,team,metadata';
-          const endpoint = `/accounts/${accountId}/templates?include=${include}`;
+          const accountId = this.getNodeParameter('accountIdTemplate', i);
+          const endpoint = `/accounts/${accountId}/templates?include=key,version,status,message,team,metadata`;
           responseData = await apiRequest.call(this, 'GET', endpoint);
+        } else if (resource === 'app' && operation === 'createApp') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const visibility = this.getNodeParameter('visibility', i) as string;
+          const appName = this.getNodeParameter('appName', i) as string;
+          const description = this.getNodeParameter('description', i) as string;
+          const responsible = this.getNodeParameter('responsible', i) as string;
+          const phone = this.getNodeParameter('phone', i) as string;
+          const email = this.getNodeParameter('email', i) as string;
+          const pictureFileId = this.getNodeParameter('pictureFileId', i, '') as string;
+
+          const body = {
+            visibility: visibility.toUpperCase(),
+            attributes: {
+              name: appName,
+              description,
+              responsible,
+              phone,
+              email,
+              picture: pictureFileId ? { file_id: pictureFileId } : undefined,
+            },
+            attachments: [],
+            settings: [
+              {
+                type: 'link',
+                name: 'webhook',
+                placeholder: 'https://example.com/webhook'
+              }
+            ],
+            resources: []
+          };
+
+          const endpoint = `/accounts/${accountId}/applications?include=attributes`;
+          responseData = await apiRequest.call(this, 'POST', endpoint, body);
+        } else if (resource === 'webhook' && operation === 'createWebhook') {
+          const applicationId = this.getNodeParameter('applicationId', i);
+          const url = this.getNodeParameter('url', i) as string;
+          const subscriptions = this.getNodeParameter('subscriptions', i) as string[];
+
+          // Validar URL
+          try {
+            new URL(url);
+          } catch (error) {
+            throw new Error('URL do webhook inválida. Por favor, forneça uma URL válida.');
+          }
+
+          // Validar subscriptions
+          if (!subscriptions || subscriptions.length === 0) {
+            throw new Error('É necessário selecionar pelo menos uma subscription.');
+          }
+
+          const validSubscriptions = ['organizations', 'chats', 'contacts', 'users', 'applications'];
+          const invalidSubscriptions = subscriptions.filter(s => !validSubscriptions.includes(s));
+          if (invalidSubscriptions.length > 0) {
+            throw new Error(`Subscriptions inválidas: ${invalidSubscriptions.join(', ')}`);
+          }
+
+          const body = { url, subscriptions };
+          const endpoint = `/applications/${applicationId}/webhooks?include=url,subscriptions`;
+          
+          try {
+            responseData = await apiRequest.call(this, 'POST', endpoint, body);
+          } catch (error: any) {
+            if (error.message?.includes('already exists')) {
+              throw new Error('Já existe um webhook configurado com esta URL para esta aplicação.');
+            }
+            throw error;
+          }
         }
 
         returnData.push({ json: responseData });
