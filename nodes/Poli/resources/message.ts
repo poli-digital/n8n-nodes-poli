@@ -1,21 +1,25 @@
-import { IResourceDescription } from '../interfaces/common';
+import { IExecuteFunctions } from 'n8n-workflow';
+import { IDataObject } from 'n8n-workflow';
+import { BaseResource } from './base';
 
-export const messageDescription: IResourceDescription = {
+export const messageDescription = {
   displayName: 'Message',
   name: 'message',
   value: 'message',
   operations: [
     {
-      displayName: 'Send Message By Phone Number',
+      displayName: 'Send',
       name: 'operation',
       value: 'sendMessage',
-      properties: [],
+      description: 'Send a message',
+      action: 'Send a message',
     },
     {
-      displayName: 'Send Message By Contact ID',
+      displayName: 'Get History',
       name: 'operation',
-      value: 'sendMessageByContactId',
-      properties: [],
+      value: 'getMessageHistory',
+      description: 'Get message history',
+      action: 'Get message history',
     },
   ],
   properties: [
@@ -25,68 +29,44 @@ export const messageDescription: IResourceDescription = {
       type: 'options',
       displayOptions: { show: { resource: ['message'] } },
       options: [
-        { name: 'Send Message By Phone Number', value: 'sendMessage' },
-        { name: 'Send Message By Contact ID', value: 'sendMessageByContactId' },
+        {
+          name: 'Send',
+          value: 'sendMessage',
+        },
+        {
+          name: 'Get History',
+          value: 'getMessageHistory',
+        },
       ],
       default: 'sendMessage',
     },
-    {
-      displayName: 'Account ID',
-      name: 'accountIdMessage',
-      type: 'string',
-      default: '',
-      required: true,
-      displayOptions: {
-        show: { resource: ['message'], operation: ['sendMessage'] },
-      },
-    },
-    {
-      displayName: 'Phone Number',
-      name: 'phoneNumber',
-      type: 'string',
-      default: '',
-      required: true,
-      displayOptions: {
-        show: { resource: ['message'], operation: ['sendMessage'] },
-      },
-    },
-    {
-      displayName: 'Account Channel UUID',
-      name: 'accountChannelUuid',
-      type: 'string',
-      default: '',
-      required: true,
-      displayOptions: {
-        show: {
-          resource: ['message'],
-          operation: ['sendMessage', 'sendMessageByContactId'],
-        },
-      },
-    },
-    {
-      displayName: 'Text',
-      name: 'text',
-      type: 'string',
-      default: 'Teste de mensagem',
-      displayOptions: {
-        show: {
-          resource: ['message'],
-          operation: ['sendMessage', 'sendMessageByContactId'],
-        },
-      },
-    },
-    {
-      displayName: 'Contact ID',
-      name: 'contactId',
-      type: 'string',
-      default: '',
-      required: true,
-      displayOptions: {
-        show: {
-          resource: ['message'],
-          operation: ['sendMessageByContactId'],
-        },
-      },
-    },
   ],
 };
+
+export class MessageResource extends BaseResource {
+  static async send(executeFunctions: IExecuteFunctions, index: number): Promise<IDataObject> {
+    const body = {
+      channelId: executeFunctions.getNodeParameter('channelId', index) as string,
+      recipientId: executeFunctions.getNodeParameter('recipientId', index) as string,
+      content: executeFunctions.getNodeParameter('content', index) as string,
+      type: executeFunctions.getNodeParameter('messageType', index) as string,
+    };
+
+    return await this.makeRequest(executeFunctions, 'POST', '/messages', body, index);
+  }
+
+  static async getHistory(executeFunctions: IExecuteFunctions, index: number): Promise<IDataObject[]> {
+    const channelId = executeFunctions.getNodeParameter('channelId', index) as string;
+    const contactId = executeFunctions.getNodeParameter('contactId', index) as string;
+
+    const response = await this.makeRequest(
+      executeFunctions,
+      'GET',
+      `/channels/${channelId}/contacts/${contactId}/messages`,
+      {},
+      index,
+    );
+
+    return response.messages as IDataObject[] || [];
+  }
+}

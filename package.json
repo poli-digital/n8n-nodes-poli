@@ -14,25 +14,37 @@
         "type": "git",
         "url": "https://github.com/PedroPi127/n8n-nodes-poli.git"
     },
+    "main": "index.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && gulp build:icons",
         "dev": "tsc --watch",
         "format": "prettier nodes credentials --write",
         "lint": "eslint nodes credentials package.json",
-        "lint:fix": "eslint nodes credentials package.json --fix",
-        "test": "jest"
+        "lintfix": "eslint nodes credentials package.json --fix",
+        "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
     },
-    "files": ["dist", "nodes/Poli/poli.svg"],
+    "files": [
+        "dist"
+    ],
     "n8n": {
         "n8nNodesApiVersion": 1,
+        "credentials": [
+            "dist/credentials/PoliApi.credentials.js"
+        ],
         "nodes": [
-            "dist/nodes/Poli/Poli.node.js"
+            "dist/nodes/Poli/index.js"
         ]
     },
     "devDependencies": {
-        "typescript": "5.4"
-    },
-    "peerDependencies": {
-        "n8n-workflow": "^1.0.0"
+        "@types/express": "^4.17.6",
+        "@types/request-promise-native": "~1.0.15",
+        "@typescript-eslint/parser": "~5.45",
+        "eslint-plugin-n8n-nodes-base": "^1.11.0",
+        "gulp": "^4.0.2",
+        "gulp-copy": "^5.0.0",
+        "n8n-core": "~1.0.0",
+        "n8n-workflow": "~1.0.0",
+        "prettier": "^2.7.1",
+        "typescript": "~4.8.4"
     }
 }

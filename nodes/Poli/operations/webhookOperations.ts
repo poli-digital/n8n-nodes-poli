@@ -1,20 +1,26 @@
-import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { apiRequest } from '../transport';
-import { IOperationHandler } from '../interfaces/common';
+import { IExecuteFunctions, IDataObject } from 'n8n-workflow';
+import { BaseResource } from '../resources/base';
 
-export class WebhookOperations implements IOperationHandler {
-  async execute(
-    this: IExecuteFunctions,
-    index: number,
-  ): Promise<INodeExecutionData> {
-    const applicationId = this.getNodeParameter('applicationId', index);
-    const url = this.getNodeParameter('url', index);
-    const subscriptions = this.getNodeParameter('subscriptions', index);
+export async function createWebhook(this: IExecuteFunctions, i: number): Promise<IDataObject> {
+  const body = {
+    applicationId: this.getNodeParameter('applicationId', i) as string,
+    url: this.getNodeParameter('url', i) as string,
+    subscriptions: this.getNodeParameter('subscriptions', i) as string[],
+  };
 
-    const body = { url, subscriptions };
-    const endpoint = `/applications/${applicationId}/webhooks?include=url,subscriptions`;
-    const responseData = await apiRequest.call(this, 'POST', endpoint, body);
+  return await BaseResource.makeRequest(this, 'POST', '/webhooks', body, i);
+}
 
-    return { json: responseData };
-  }
+export async function listWebhooks(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
+  const applicationId = this.getNodeParameter('applicationId', i) as string;
+
+  const response = await BaseResource.makeRequest(
+    this,
+    'GET',
+    `/applications/${applicationId}/webhooks`,
+    {},
+    i,
+  );
+
+  return response.webhooks as IDataObject[] || [];
 }

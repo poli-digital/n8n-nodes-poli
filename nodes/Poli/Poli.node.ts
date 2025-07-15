@@ -4,7 +4,6 @@ import {
   INodeType,
   INodeTypeDescription,
   JsonObject,
-  NodeConnectionType,
 } from 'n8n-workflow';
 
 import { NodeApiError } from 'n8n-workflow';
@@ -21,8 +20,8 @@ export class Poli implements INodeType {
     defaults: {
       name: 'Poli',
     },
-    inputs: [NodeConnectionType.Main],
-    outputs: [NodeConnectionType.Main],
+    inputs: ['main'],
+    outputs: ['main'],
     credentials: [
       {
         name: 'poliApi',
@@ -309,7 +308,10 @@ export class Poli implements INodeType {
         name: 'operation',
         type: 'options',
         displayOptions: { show: { resource: ['app'] } },
-        options: [{ name: 'Create App', value: 'createApp' }],
+        options: [
+          { name: 'Create App', value: 'createApp' },
+          { name: 'List Apps', value: 'listApps' }
+        ],
         default: 'createApp',
       },
       {
@@ -319,7 +321,10 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: { resource: ['app'], operation: ['createApp'] },
+          show: { 
+            resource: ['app'], 
+            operation: ['createApp', 'listApps'] 
+          },
         },
       },
       {
@@ -403,7 +408,10 @@ export class Poli implements INodeType {
         name: 'operation',
         type: 'options',
         displayOptions: { show: { resource: ['webhook'] } },
-        options: [{ name: 'Create Webhook', value: 'createWebhook' }],
+        options: [
+          { name: 'Create Webhook', value: 'createWebhook' },
+          { name: 'List Webhooks', value: 'listWebhooks' }
+        ],
         default: 'createWebhook',
       },
       {
@@ -413,7 +421,10 @@ export class Poli implements INodeType {
         default: '',
         required: true,
         displayOptions: {
-          show: { resource: ['webhook'], operation: ['createWebhook'] },
+          show: { 
+            resource: ['webhook'],
+            operation: ['createWebhook', 'listWebhooks']
+          },
         },
       },
       {
@@ -568,6 +579,14 @@ export class Poli implements INodeType {
 
           const endpoint = `/accounts/${accountId}/applications?include=attributes`;
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
+        } else if (resource === 'app' && operation === 'listApps') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const endpoint = `/accounts/${accountId}/applications?include=attributes`;
+          responseData = await apiRequest.call(this, 'GET', endpoint);
+        } else if (resource === 'webhook' && operation === 'listWebhooks') {
+          const applicationId = this.getNodeParameter('applicationId', i);
+          const endpoint = `/applications/${applicationId}/webhooks?include=url,subscriptions,application`;
+          responseData = await apiRequest.call(this, 'GET', endpoint);
         } else if (resource === 'webhook' && operation === 'createWebhook') {
           const applicationId = this.getNodeParameter('applicationId', i);
           const url = this.getNodeParameter('url', i) as string;
@@ -602,6 +621,9 @@ export class Poli implements INodeType {
             }
             throw error;
           }
+        } else if (resource === 'webhook' && operation === 'listWebhooks') {
+          const applicationId = this.getNodeParameter('applicationId', i);
+          responseData = await apiRequest.call(this, 'GET', `/applications/${applicationId}/webhooks?include=url,subscriptions`);
         }
 
         returnData.push({ json: responseData });

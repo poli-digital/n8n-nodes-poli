@@ -1,10 +1,4 @@
-import { INodeTypeDescription, NodeConnectionType } from 'n8n-workflow';
-import { channelDescription } from '../resources/channel';
-import { contactDescription } from '../resources/contact';
-import { messageDescription } from '../resources/message';
-import { templateDescription } from '../resources/template';
-import { appDescription } from '../resources/app';
-import { webhookDescription } from '../resources/webhook';
+import { INodeTypeDescription, NodePropertyTypes } from 'n8n-workflow';
 
 export const nodeDescription: INodeTypeDescription = {
   displayName: 'Poli',
@@ -16,37 +10,66 @@ export const nodeDescription: INodeTypeDescription = {
   defaults: {
     name: 'Poli',
   },
-  inputs: [NodeConnectionType.Main],
-  outputs: [NodeConnectionType.Main],
+  inputs: ['main'],
+  outputs: ['main'],
   credentials: [
     {
       name: 'poliApi',
       required: true,
     },
   ],
+  requestDefaults: {
+    baseURL: 'https://api.poli.digital/v1',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  },
   properties: [
     {
       displayName: 'Resource',
       name: 'resource',
-      type: 'options',
+      type: 'options' as NodePropertyTypes,
+      noDataExpression: true,
       options: [
-        channelDescription,
-        contactDescription,
-        messageDescription,
-        templateDescription,
-        appDescription,
-        webhookDescription,
-      ].map(({ displayName, name, value }) => ({
-        name: displayName,
-        value,
-      })),
-      default: 'channel',
+        {
+          name: 'App',
+          value: 'app',
+        },
+        {
+          name: 'Channel',
+          value: 'channel',
+        },
+        {
+          name: 'Contact',
+          value: 'contact',
+        },
+        {
+          name: 'Message',
+          value: 'message',
+        },
+        {
+          name: 'Template',
+          value: 'template',
+        },
+        {
+          name: 'Webhook',
+          value: 'webhook',
+        },
+      ],
+      default: 'app',
     },
-    ...channelDescription.properties,
-    ...contactDescription.properties,
-    ...messageDescription.properties,
-    ...templateDescription.properties,
-    ...appDescription.properties,
-    ...webhookDescription.properties,
+    {
+      displayName: 'Operation',
+      name: 'operation',
+      type: 'options' as NodePropertyTypes,
+      displayOptions: {
+        show: {
+          resource: ['app', 'channel', 'contact', 'message', 'template', 'webhook'],
+        },
+      },
+      default: '',
+      noDataExpression: true,
+    },
   ],
 };

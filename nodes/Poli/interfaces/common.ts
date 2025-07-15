@@ -1,4 +1,4 @@
-import { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import { IExecuteFunctions, INodeExecutionData, INodeProperties, NodePropertyTypes } from 'n8n-workflow';
 
 export interface IOperationHandler {
   execute(
@@ -7,17 +7,19 @@ export interface IOperationHandler {
   ): Promise<INodeExecutionData>;
 }
 
+export interface INodeResourceOperation {
+  displayName: string;
+  name: string;
+  value: string;
+  description?: string;
+  action?: string;
+  properties?: INodeProperties[];
+}
+
 export interface IResourceDescription {
   displayName: string;
   name: string;
   value: string;
-  operations: IOperationDescription[];
-  properties: any[];
-}
-
-export interface IOperationDescription {
-  displayName: string;
-  name: string;
-  value: string;
-  properties: any[];
+  operations: INodeResourceOperation[];
+  properties: Array<INodeProperties & { type: NodePropertyTypes }>;
 }
