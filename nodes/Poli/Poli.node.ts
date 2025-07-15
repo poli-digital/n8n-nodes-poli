@@ -39,6 +39,7 @@ export class Poli implements INodeType {
           { name: 'Message', value: 'message' },
           { name: 'Template', value: 'template' },
           { name: 'App', value: 'app' },
+          { name: 'Tag', value: 'tag' },
           { name: 'Webhook', value: 'webhook' },
         ],
         default: 'channel',
@@ -402,6 +403,32 @@ export class Poli implements INodeType {
         },
       },
 
+      // TAG
+      {
+        displayName: 'Operation',
+        name: 'operation',
+        type: 'options',
+        displayOptions: { show: { resource: ['tag'] } },
+        options: [
+          { name: 'List Tags', value: 'listTags' }
+        ],
+        default: 'listTags',
+      },
+      {
+        displayName: 'Account ID',
+        name: 'accountId',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['tag'],
+            operation: ['listTags'],
+          },
+        },
+        description: 'ID da conta para listar as tags',
+      },
+
       // WEBHOOK
       {
         displayName: 'Operation',
@@ -546,6 +573,10 @@ export class Poli implements INodeType {
           const accountId = this.getNodeParameter('accountIdTemplate', i);
           const endpoint = `/accounts/${accountId}/templates?include=key,version,status,message,team,metadata`;
           responseData = await apiRequest.call(this, 'GET', endpoint);
+        } else if (resource === 'tag' && operation === 'listTags') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const endpoint = `/accounts/${accountId}/tags?include=attributes`;
+          responseData = await apiRequest.call(this, 'GET', endpoint);
         } else if (resource === 'app' && operation === 'createApp') {
           const accountId = this.getNodeParameter('accountId', i);
           const visibility = this.getNodeParameter('visibility', i) as string;
@@ -583,6 +614,23 @@ export class Poli implements INodeType {
           const accountId = this.getNodeParameter('accountId', i);
           const endpoint = `/accounts/${accountId}/applications?include=attributes`;
           responseData = await apiRequest.call(this, 'GET', endpoint);
+        } else if (resource === 'tag' && operation === 'listTags') {
+          const accountId = this.getNodeParameter('accountId', i);
+          responseData = await apiRequest.call(this, 'GET', `/accounts/${accountId}/tags`);
+        } else if (resource === 'tag' && operation === 'createTag') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const tagName = this.getNodeParameter('tagName', i);
+
+          const body = {
+            name: tagName,
+          };
+
+          responseData = await apiRequest.call(this, 'POST', `/accounts/${accountId}/tags`, body);
+        } else if (resource === 'tag' && operation === 'deleteTag') {
+          const accountId = this.getNodeParameter('accountId', i);
+          const tagId = this.getNodeParameter('tagId', i);
+
+          responseData = await apiRequest.call(this, 'DELETE', `/accounts/${accountId}/tags/${tagId}`);
         } else if (resource === 'webhook' && operation === 'listWebhooks') {
           const applicationId = this.getNodeParameter('applicationId', i);
           const endpoint = `/applications/${applicationId}/webhooks?include=url,subscriptions,application`;
