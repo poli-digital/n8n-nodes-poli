@@ -1,5 +1,7 @@
+import type { INodeType } from 'n8n-workflow'; // Adicionar importação
 import { INodeTypeDescription } from 'n8n-workflow';
 import { Poli } from './Poli.node';
+import { PoliTrigger } from './PoliTrigger.node';
 
 export class PoliNode extends Poli {
 	description: INodeTypeDescription = {
@@ -21,3 +23,20 @@ export class PoliNode extends Poli {
 		],
 	};
 }
+
+export class PoliNodes {
+	private constructor() {
+		// Singleton
+	}
+
+	// Method used by n8n-node-module.js to get the nodes
+	public static getNodes(): INodeType[] {
+		return [
+			new PoliTrigger(),
+		];
+	}
+}
+
+export const nodes = [
+	PoliTrigger,
+];
