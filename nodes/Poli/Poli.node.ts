@@ -74,7 +74,9 @@ export class Poli implements INodeType {
         name: 'operation',
         type: 'options',
         displayOptions: { show: { resource: ['contact'] } },
-        options: [{ name: 'List Contacts', value: 'listContacts' }],
+        options: [
+          { name: 'List Contacts', value: 'listContacts' },
+        ],
         default: 'listContacts',
       },
       {
@@ -410,7 +412,8 @@ export class Poli implements INodeType {
         type: 'options',
         displayOptions: { show: { resource: ['tag'] } },
         options: [
-          { name: 'List Tags', value: 'listTags' }
+          { name: 'List Tags', value: 'listTags' },
+          { name: 'Add Tag to Contact', value: 'addTagToContact' },
         ],
         default: 'listTags',
       },
@@ -427,6 +430,34 @@ export class Poli implements INodeType {
           },
         },
         description: 'ID da conta para listar as tags',
+      },
+      {
+        displayName: 'Contact UUID',
+        name: 'contactUuid',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+          show: {
+            resource: ['tag'],
+            operation: ['addTagToContact'],
+          },
+        },
+        description: 'UUID do contato ao qual a tag será adicionada',
+      },
+      {
+        displayName: 'Tag UUID',
+        name: 'tagUuid',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+          show: {
+            resource: ['tag'],
+            operation: ['addTagToContact'],
+          },
+        },
+        description: 'UUID da tag que será adicionada ao contato',
       },
 
       // WEBHOOK

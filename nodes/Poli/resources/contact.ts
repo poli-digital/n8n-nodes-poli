@@ -28,6 +28,13 @@ export const contactDescription = {
 			description: 'Update a contact',
 			action: 'Update a contact',
 		},
+		{
+			displayName: 'Add Tag to Contact',
+			name: 'addTagToContact',
+			value: 'addTagToContact',
+			description: 'Adiciona uma tag a um contato',
+			action: 'Add a tag to a contact',
+		},
 	],
 	properties: [
 		{
@@ -47,6 +54,10 @@ export const contactDescription = {
 				{
 					name: 'Update',
 					value: 'updateContact',
+				},
+				{
+					name: 'Add Tag to Contact',
+					value: 'addTagToContact',
 				},
 			],
 			default: 'createContact',
@@ -77,5 +88,16 @@ export class ContactResource extends BaseResource {
 		const updateFields = executeFunctions.getNodeParameter('updateFields', index) as IDataObject;
 
 		return await this.makeRequest(executeFunctions, 'PUT', `/contacts/${contactId}`, updateFields, index);
+	}
+
+	static async addTagToContact(executeFunctions: IExecuteFunctions, index: number): Promise<IDataObject> {
+		const contactUuid = executeFunctions.getNodeParameter('contactUuid', index) as string;
+		const tagUuid = executeFunctions.getNodeParameter('tagUuid', index) as string;
+
+		const body = {
+			tags: [tagUuid],
+		};
+
+		return await this.makeRequest(executeFunctions, 'POST', `/contacts/${contactUuid}/tags`, body, index);
 	}
 }
