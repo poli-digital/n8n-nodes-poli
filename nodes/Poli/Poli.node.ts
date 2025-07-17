@@ -76,6 +76,7 @@ export class Poli implements INodeType {
         displayOptions: { show: { resource: ['contact'] } },
         options: [
           { name: 'List Contacts', value: 'listContacts' },
+          { name: 'Forward Contact', value: 'forwardContact' },
         ],
         default: 'listContacts',
       },
@@ -107,6 +108,44 @@ export class Poli implements INodeType {
           show: {
             resource: ['contact'],
             operation: ['listContacts'],
+          },
+        },
+      },
+      {
+        displayName: 'Contact UUID',
+        name: 'contactUuid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+            operation: ['forwardContact'],
+          },
+        },
+      },
+      {
+        displayName: 'User UUID',
+        name: 'userUuid',
+        type: 'string',
+        default: '',
+        required: true,
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+            operation: ['forwardContact'],
+          },
+        },
+      },
+      {
+        displayName: 'Team UUID',
+        name: 'teamUuid',
+        type: 'string',
+        default: '',
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+            operation: ['forwardContact'],
           },
         },
       },
@@ -703,6 +742,26 @@ export class Poli implements INodeType {
         } else if (resource === 'webhook' && operation === 'listWebhooks') {
           const applicationId = this.getNodeParameter('applicationId', i);
           responseData = await apiRequest.call(this, 'GET', `/applications/${applicationId}/webhooks?include=url,subscriptions`);
+        } else if (resource === 'contact' && operation === 'forwardContact') {
+          const contactUuid = this.getNodeParameter('contactUuid', i);
+          const userUuid = this.getNodeParameter('userUuid', i) as string;
+          const teamUuid = this.getNodeParameter('teamUuid', i, null) as string | null;
+
+          const body: { user_uuid: string; team_uuid?: string | null } = {
+            user_uuid: userUuid,
+          };
+
+          if (teamUuid) {
+            body.team_uuid = teamUuid;
+          }
+
+          const endpoint = `/contacts/${contactUuid}/forward`;
+          try {
+            responseData = await apiRequest.call(this, 'POST', endpoint, body);
+          } catch (error) {
+            console.error('Erro ao redirecionar contato:', error);
+            throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
+          }
         }
 
         returnData.push({ json: responseData });
