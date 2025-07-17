@@ -42,8 +42,8 @@ export class PoliTrigger implements INodeType {
 				name: 'default',
 				httpMethod: 'POST',
 				responseMode: 'onReceived',
-				path: 'poli',
-				isStatic: true,
+				path: '={{$parameter["webhookPath"]}}',
+				isStatic: false,
 			},
 		],
 		properties: [
@@ -84,6 +84,14 @@ export class PoliTrigger implements INodeType {
 				default: ['message.received'],
 				required: true,
 				description: 'Eventos que serão monitorados',
+			},
+			{
+				displayName: 'Webhook Path',
+				name: 'webhookPath',
+				type: 'string',
+				default: 'poli',
+				required: true,
+				description: 'Path customizado para a URL do webhook',
 			},
 		],
 	};
@@ -135,7 +143,8 @@ export class PoliTrigger implements INodeType {
 		// Construir a URL do webhook usando as variáveis de ambiente
 		const webhookHost = process.env.WEBHOOK_URL || 'http://localhost:5678';
 		const webhookEndpoint = process.env.N8N_ENDPOINT_WEBHOOK_TEST || 'webhook-test';
-		const webhookUrl = `${webhookHost}/${webhookEndpoint}/poli`;
+		const webhookPath = this.getNodeParameter('webhookPath', 0) as string;
+		const webhookUrl = `${webhookHost}/${webhookEndpoint}/${webhookPath}`;
 
 		console.log('Webhook URL construída:', webhookUrl);
 
