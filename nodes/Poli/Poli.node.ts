@@ -443,6 +443,20 @@ export class Poli implements INodeType {
           show: { resource: ['app'], operation: ['createApp'] },
         },
       },
+      {
+        displayName: 'Page',
+        name: 'page',
+        type: 'number',
+        default: 1,
+        required: false,
+        description: 'Número da página para listar os aplicativos',
+        displayOptions: {
+          show: {
+            resource: ['app'],
+            operation: ['listApps'],
+          },
+        },
+      },
 
       // TAG
       {
@@ -682,7 +696,9 @@ export class Poli implements INodeType {
           responseData = await apiRequest.call(this, 'POST', endpoint, body);
         } else if (resource === 'app' && operation === 'listApps') {
           const accountId = this.getNodeParameter('accountId', i);
-          const endpoint = `/accounts/${accountId}/applications?include=attributes`;
+          const page = this.getNodeParameter('page', i) as number;
+
+          const endpoint = `/accounts/${accountId}/applications?include=attributes&page=${page}`;
           responseData = await apiRequest.call(this, 'GET', endpoint);
         } else if (resource === 'tag' && operation === 'listTags') {
           const accountId = this.getNodeParameter('accountId', i);

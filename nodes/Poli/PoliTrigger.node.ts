@@ -93,6 +93,14 @@ export class PoliTrigger implements INodeType {
 				required: true,
 				description: 'Path customizado para a URL do webhook',
 			},
+			{
+				displayName: 'Page',
+				name: 'page',
+				type: 'number',
+				default: 1,
+				required: false,
+				description: 'Número da página para listar os aplicativos',
+			},
 		],
 	};
 
@@ -152,12 +160,17 @@ export class PoliTrigger implements INodeType {
 		const events = this.getNodeParameter('events', 0) as string[];
 		const appName = this.getNodeParameter('appName', 0) as string;
 
+		// Adicionar um parâmetro opcional para a página
+		const page = this.getNodeParameter('page', 0) as number || 1; // Página padrão é 1
+		const perPage = 100; // Número fixo de itens por página
+
 		try {
 			// Verificar se já existe uma aplicação com este nome
+			// Atualizar a URL da requisição para incluir o parâmetro de página
 			const appsResponse = await apiRequest.call(
 				this as unknown as IExecuteFunctions,
 				'GET',
-				`/accounts/${accountUuid}/applications?include=attributes`,
+				`https://foundation-api.poli.digital/v3/accounts/${accountUuid}/applications?include=attributes&perPage=${perPage}&page=${page}`,
 			);
 
 			let applicationId: string;
