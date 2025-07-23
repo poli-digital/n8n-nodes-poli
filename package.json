@@ -34,7 +34,8 @@
         ],
         "nodes": [
             "dist/nodes/Poli/Poli.node.js",
-            "dist/nodes/Poli/PoliTrigger.node.js"
+            "dist/nodes/Poli/PoliTrigger.node.js",
+            "dist/nodes/Poli/SendTemplateByContactId.node.js"
         ]
     },
     "dependencies": {

@@ -112,33 +112,33 @@ export class PoliTrigger implements INodeType {
 			throw new Error('Nenhum dado recebido no webhook');
 		}
 
+		// Filtrar informações desnecessárias do bodyData
+		const filteredBodyData = Object.keys(bodyData)
+			.filter((key) => ![
+				'_debug',
+				'webhookReceivedAt',
+				'webhookHeaders',
+				'baggage',
+				'x-request-id',
+				'x-real-ip',
+			].includes(key))
+			.reduce((obj, key) => {
+				obj[key] = bodyData[key];
+				return obj;
+			}, {} as IDataObject);
+
+		// Adicionar os eventos conhecidos novamente
+		const knownEvents = [
+			'message.received',
+			'message.status',
+			'contact.updated',
+			'contact.created',
+		];
+
 		const returnData: IDataObject = {
-			...bodyData,
-			webhookReceivedAt: new Date().toISOString(),
-			webhookHeaders: headers,
-			_debug: {
-				receivedData: true,
-				dataValidated: true,
-			},
+			...filteredBodyData,
+			events: knownEvents,
 		};
-
-		const event = bodyData.event as string;
-		if (event) {
-			const knownEvents = [
-				'message.received',
-				'message.status',
-				'contact.updated',
-				'contact.created',
-			];
-
-			if (!knownEvents.includes(event)) {
-				returnData._debug = {
-					...returnData._debug as object,
-					warning: `Evento desconhecido recebido: ${event}`,
-					knownEvents,
-				};
-			}
-		}
 
 		return {
 			workflowData: [this.helpers.returnJsonArray([returnData])],
