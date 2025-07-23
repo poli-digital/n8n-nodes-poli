@@ -35,9 +35,10 @@
         "nodes": [
             "dist/nodes/Poli/Poli.node.js",
             "dist/nodes/Poli/PoliTrigger.node.js",
-            "dist/nodes/Poli/SendTemplateByContactId.node.js"
+            "dist/nodes/Poli/SendTemplateByContactId.node.js",
+            "dist/nodes/Poli/ForwardContact.node.js"
         ]
-    },
+    },  
     "dependencies": {
         "n8n-core": "^0.125.0",
         "n8n-workflow": "^0.107.0"

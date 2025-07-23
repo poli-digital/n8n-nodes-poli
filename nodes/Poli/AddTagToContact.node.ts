@@ -4,13 +4,13 @@ import { apiRequest } from './transport';
 
 export class AddTagToContact {
   description = {
-    displayName: 'Add Tag to Contact',
-    name: 'addTagToContact',
+    displayName: 'AddTagToContact', // Nome visível no menu lateral
+    name: 'addTagToContact',        // Identificador interno (não precisa mudar)
     group: ['output'],
     version: 1,
     description: 'Add a tag to a contact',
     defaults: {
-      name: 'Add Tag to Contact',
+      name: 'AddTagToContact',      // Nome padrão no canvas
     },
     inputs: ['main'],
     outputs: ['main'],
@@ -32,6 +32,9 @@ export class AddTagToContact {
         description: 'UUID of the tag to be added to the contact',
       },
     ],
+    codex: {
+      categories: ['Poli'], // Agrupamento no menu (opcional)
+    },
   };
 
   async execute(this: IExecuteFunctions) {

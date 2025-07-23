@@ -4,7 +4,7 @@ import { apiRequest } from './transport';
 
 export class ListApps {
   description = {
-    displayName: 'List Apps',
+    displayName: 'List',
     name: 'listApps',
     group: ['output'],
     version: 1,

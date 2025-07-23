@@ -23,10 +23,33 @@ export class ForwardContact {
         required: true,
       },
       {
+        displayName: 'Forward To',
+        name: 'forwardType',
+        type: 'options',
+        options: [
+          {
+            name: 'User',
+            value: 'user',
+          },
+          {
+            name: 'Team',
+            value: 'team',
+          },
+        ],
+        default: 'user',
+        description: 'Escolha se deseja encaminhar o contato para um usuário ou uma equipe.',
+        required: true,
+      },
+      {
         displayName: 'User UUID',
         name: 'userUuid',
         type: 'string',
         default: '',
+        displayOptions: {
+          show: {
+            forwardType: ['user'],
+          },
+        },
         required: true,
       },
       {
@@ -34,6 +57,12 @@ export class ForwardContact {
         name: 'teamUuid',
         type: 'string',
         default: '',
+        displayOptions: {
+          show: {
+            forwardType: ['team'],
+          },
+        },
+        required: true,
       },
     ],
   };
@@ -44,15 +73,16 @@ export class ForwardContact {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactUuid = this.getNodeParameter('contactUuid', i);
-        const userUuid = this.getNodeParameter('userUuid', i) as string;
-        const teamUuid = this.getNodeParameter('teamUuid', i, null) as string | null;
+        const contactUuid = this.getNodeParameter('contactUuid', i) as string;
+        const forwardType = this.getNodeParameter('forwardType', i) as 'user' | 'team';
 
-        const body: { user_uuid: string; team_uuid?: string | null } = {
-          user_uuid: userUuid,
-        };
+        const body: { user_uuid?: string; team_uuid?: string } = {};
 
-        if (teamUuid) {
+        if (forwardType === 'user') {
+          const userUuid = this.getNodeParameter('userUuid', i) as string;
+          body.user_uuid = userUuid;
+        } else {
+          const teamUuid = this.getNodeParameter('teamUuid', i) as string;
           body.team_uuid = teamUuid;
         }
 

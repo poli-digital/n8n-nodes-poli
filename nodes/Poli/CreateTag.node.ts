@@ -4,7 +4,7 @@ import { apiRequest } from './transport';
 
 export class CreateTag {
   description = {
-    displayName: 'Create Tag',
+    displayName: 'Create',
     name: 'createTag',
     group: ['output'],
     version: 1,
