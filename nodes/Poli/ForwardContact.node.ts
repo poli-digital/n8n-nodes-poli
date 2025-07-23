@@ -1,11 +1,11 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class ForwardContact {
-  description = {
+export class ForwardContact implements INodeType {
+  description: INodeTypeDescription = {
     displayName: 'Forward Contact',
     name: 'forwardContact',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'Forward a contact to a user or team',
@@ -14,6 +14,12 @@ export class ForwardContact {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Contact UUID',
@@ -54,7 +60,7 @@ export class ForwardContact {
         description: 'UUID do usuário que receberá o contato encaminhado',
         displayOptions: {
           show: {
-            forwardType: ['user'],
+            forwardType: ['user'], // Mostra apenas se "user" for selecionado
           },
         },
         required: true,
@@ -68,7 +74,7 @@ export class ForwardContact {
         description: 'UUID da equipe que receberá o contato encaminhado',
         displayOptions: {
           show: {
-            forwardType: ['team'],
+            forwardType: ['team'], // Mostra apenas se "team" for selecionado
           },
         },
         required: true,

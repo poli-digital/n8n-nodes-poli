@@ -1,12 +1,11 @@
-import { IExecuteFunctions } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { JsonObject } from 'n8n-workflow';
 
-export class CreateApp {
-  description = {
+export class CreateApp implements INodeType {
+  description: INodeTypeDescription = {
     displayName: 'Create App',
     name: 'createApp',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'Create a new application',
@@ -15,6 +14,12 @@ export class CreateApp {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Account ID',

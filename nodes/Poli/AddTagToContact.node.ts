@@ -1,19 +1,25 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class AddTagToContact {
-  description = {
-    displayName: 'AddTagToContact', // Nome visível no menu lateral
-    name: 'addTagToContact',        // Identificador interno (não precisa mudar)
+export class AddTagToContact implements INodeType {
+  description: INodeTypeDescription = {
+    displayName: 'Add Tag To Contact',
+    name: 'addTagToContact',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'Add a tag to a contact',
     defaults: {
-      name: 'AddTagToContact',      // Nome padrão no canvas
+      name: 'Add Tag To Contact',
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Contact UUID',

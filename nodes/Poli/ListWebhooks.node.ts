@@ -1,11 +1,12 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class ListWebhooks {
-  description = {
+export class ListWebhooks implements INodeType {
+  description: INodeTypeDescription = {
     displayName: 'List Webhooks',
     name: 'listWebhooks',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'List all webhooks',
@@ -14,6 +15,12 @@ export class ListWebhooks {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Application ID',

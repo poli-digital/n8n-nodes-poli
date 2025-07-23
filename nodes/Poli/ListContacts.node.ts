@@ -1,11 +1,12 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class ListContacts {
-  description = {
+export class ListContacts implements INodeType {
+  description: INodeTypeDescription = {
     displayName: 'List Contacts',
     name: 'listContacts',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'List all contacts',
@@ -14,6 +15,12 @@ export class ListContacts {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Account ID',

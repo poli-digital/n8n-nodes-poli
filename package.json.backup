@@ -34,20 +34,11 @@
         ],
         "nodes": [
             "dist/nodes/Poli/PoliTrigger.node.js",
+            "dist/nodes/Poli/ForwardContact.node.js",
+            "dist/nodes/Poli/SendTemplateByContactId.node.js",
             "dist/nodes/Poli/AddTagToContact.node.js",
             "dist/nodes/Poli/CreateApp.node.js",
-            "dist/nodes/Poli/CreateTag.node.js",
-            "dist/nodes/Poli/CreateWebhook.node.js",
-            "dist/nodes/Poli/ForwardContact.node.js",
-            "dist/nodes/Poli/ListApps.node.js",
-            "dist/nodes/Poli/ListChannels.node.js",
-            "dist/nodes/Poli/ListContacts.node.js",
-            "dist/nodes/Poli/ListTags.node.js",
-            "dist/nodes/Poli/ListTemplates.node.js",
-            "dist/nodes/Poli/ListWebhooks.node.js",
-            "dist/nodes/Poli/SendMessageByContactId.node.js",
-            "dist/nodes/Poli/SendMessageByPhoneNumber.node.js",
-            "dist/nodes/Poli/SendTemplateByContactId.node.js"
+            "dist/nodes/Poli/CreateTag.node.js"
         ]
     },
     "dependencies": {

@@ -1,11 +1,12 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class SendMessageByPhoneNumber {
-  description = {
+export class SendMessageByPhoneNumber implements INodeType {
+  description: INodeTypeDescription = {
     displayName: 'Send Message By Phone Number',
     name: 'sendMessage',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'Send a message to a phone number',
@@ -14,6 +15,12 @@ export class SendMessageByPhoneNumber {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Account ID',

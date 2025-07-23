@@ -1,11 +1,11 @@
-import { IExecuteFunctions, JsonObject } from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
-export class CreateTag {
-  description = {
-    displayName: 'Create',
+export class CreateTag implements INodeType {
+  description: INodeTypeDescription = {
+    displayName: 'Create Tag',
     name: 'createTag',
+    icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
     description: 'Create a new tag',
@@ -14,6 +14,12 @@ export class CreateTag {
     },
     inputs: ['main'],
     outputs: ['main'],
+    credentials: [
+      {
+        name: 'poliApi',
+        required: true,
+      },
+    ],
     properties: [
       {
         displayName: 'Account ID',
