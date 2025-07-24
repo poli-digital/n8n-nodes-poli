@@ -23,7 +23,7 @@ export class ListChannels implements INodeType {
     ],
     properties: [
       {
-        displayName: 'Customer ID',
+        displayName: 'Account ID',
         name: 'customerId',
         type: 'string',
         default: '',
