@@ -1,4 +1,11 @@
-import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
+import {
+  IExecuteFunctions,
+  INodeExecutionData,
+  INodeType,
+  INodeTypeDescription,
+} from 'n8n-workflow';
+
+import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
 
 export class Poli implements INodeType {
@@ -8,7 +15,7 @@ export class Poli implements INodeType {
     icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
-    description: 'Interact with Poli API',
+    description: 'Unified Poli Node',
     defaults: {
       name: 'Poli',
     },
@@ -25,83 +32,28 @@ export class Poli implements INodeType {
         displayName: 'Resource',
         name: 'resource',
         type: 'options',
-        noDataExpression: true,
         options: [
-          {
-            name: 'Contact',
-            value: 'contact',
-          },
-          {
-            name: 'App',
-            value: 'app',
-          },
-          {
-            name: 'Tag',
-            value: 'tag',
-          },
-          {
-            name: 'Webhook',
-            value: 'webhook',
-          },
-          {
-            name: 'Channel',
-            value: 'channel',
-          },
-          {
-            name: 'Template',
-            value: 'template',
-          },
-          {
-            name: 'Message',
-            value: 'message',
-          },
+          { name: 'App', value: 'app' },
+          { name: 'Channel', value: 'channel' },
+          { name: 'Contact', value: 'contact' },
+          { name: 'Template', value: 'template' },
         ],
-        default: 'contact',
+        default: 'app',
       },
       {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
-        displayOptions: {
-          show: {
-            resource: ['contact'],
-          },
-        },
-        options: [
-          {
-            name: 'Add Tag',
-            value: 'addTag',
-            action: 'Add Tag To Contact',
-          },
-          {
-            name: 'Forward',
-            value: 'forward',
-            action: 'Forward Contact',
-          },
-          {
-            name: 'List',
-            value: 'list',
-            action: 'List Contacts',
-          },
-          {
-            name: 'Send Message By ID',
-            value: 'sendMessage',
-            action: 'Send Message By Contact ID',
-          },
-          {
-            name: 'Send Template By ID',
-            value: 'sendTemplate',
-            action: 'Send Template By Contact ID',
-          },
-        ],
-        default: 'list',
+        displayName: 'Account ID',
+        name: 'accountId',
+        type: 'string',
+        default: '',
+        required: true,
       },
+
+      // OPTIONS - APP
       {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
+        displayName: 'Options (App)',
+        name: 'options',
+        type: 'collection',
+        default: {},
         displayOptions: {
           show: {
             resource: ['app'],
@@ -109,71 +61,32 @@ export class Poli implements INodeType {
         },
         options: [
           {
-            name: 'Create',
-            value: 'create',
-            action: 'Create App',
-          },
-          {
-            name: 'List',
-            value: 'list',
-            action: 'List Apps',
-          },
-        ],
-        default: 'list',
-      },
-      {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
-        displayOptions: {
-          show: {
-            resource: ['tag'],
-          },
-        },
-        options: [
-          {
-            name: 'Create',
-            value: 'create',
-            action: 'Create Tag',
-          },
-          {
-            name: 'List',
-            value: 'list',
-            action: 'List Tags',
+            displayName: 'Include',
+            name: 'include',
+            type: 'multiOptions',
+            options: [
+              { name: 'Status', value: 'status' },
+              { name: 'Visibility', value: 'visibility' },
+              { name: 'Attributes', value: 'attributes' },
+              { name: 'Roles', value: 'roles' },
+              { name: 'Permissions', value: 'permissions' },
+              { name: 'Attachments', value: 'attachments' },
+              { name: 'Resources', value: 'resources' },
+              { name: 'Settings', value: 'settings' },
+              { name: 'Accounts', value: 'accounts' },
+              { name: 'Metadata', value: 'metadata' },
+            ],
+            default: [],
           },
         ],
-        default: 'list',
       },
+
+      // OPTIONS - CHANNEL
       {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
-        displayOptions: {
-          show: {
-            resource: ['webhook'],
-          },
-        },
-        options: [
-          {
-            name: 'Create',
-            value: 'create',
-            action: 'Create Webhook',
-          },
-          {
-            name: 'List',
-            value: 'list',
-            action: 'List Webhooks',
-          },
-        ],
-        default: 'list',
-      },
-      {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
+        displayName: 'Options (Channel)',
+        name: 'options',
+        type: 'collection',
+        default: {},
         displayOptions: {
           show: {
             resource: ['channel'],
@@ -181,18 +94,64 @@ export class Poli implements INodeType {
         },
         options: [
           {
-            name: 'List',
-            value: 'list',
-            action: 'List Channels',
+            displayName: 'Include',
+            name: 'include',
+            type: 'multiOptions',
+            options: [
+              { name: 'UID', value: 'uid' },
+              { name: 'Name', value: 'name' },
+              { name: 'Status', value: 'status' },
+              { name: 'Provider', value: 'provider' },
+              { name: 'Integrator', value: 'integrator' },
+              { name: 'Config', value: 'config' },
+              { name: 'Metadata', value: 'metadata' },
+            ],
+            default: [],
           },
         ],
-        default: 'list',
       },
+
+      // OPTIONS - CONTACT
       {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
+        displayName: 'Options (Contact)',
+        name: 'options',
+        type: 'collection',
+        default: {},
+        displayOptions: {
+          show: {
+            resource: ['contact'],
+          },
+        },
+        options: [
+          {
+            displayName: 'Include',
+            name: 'include',
+            type: 'multiOptions',
+            options: [
+              { name: 'Type', value: 'type' },
+              { name: 'Chat Status', value: 'chat_status' },
+              { name: 'Read Status', value: 'read_status' },
+              { name: 'Attributes', value: 'attributes' },
+              { name: 'Account', value: 'account' },
+              { name: 'Attendant', value: 'attendant' },
+              { name: 'Contact Channels', value: 'contact_channels' },
+              { name: 'Current Attendance', value: 'current_attendance' },
+              { name: 'Last Message', value: 'last_message' },
+              { name: 'Tags', value: 'tags' },
+              { name: 'Addresses', value: 'addresses' },
+              { name: 'Metadata', value: 'metadata' },
+            ],
+            default: [],
+          },
+        ],
+      },
+
+      // OPTIONS - TEMPLATE
+      {
+        displayName: 'Options (Template)',
+        name: 'options',
+        type: 'collection',
+        default: {},
         displayOptions: {
           show: {
             resource: ['template'],
@@ -200,86 +159,47 @@ export class Poli implements INodeType {
         },
         options: [
           {
-            name: 'List',
-            value: 'list',
-            action: 'List Templates',
+            displayName: 'Include',
+            name: 'include',
+            type: 'multiOptions',
+            options: [
+              { name: 'Key', value: 'key' },
+              { name: 'Version', value: 'version' },
+              { name: 'Status', value: 'status' },
+              { name: 'Message', value: 'message' },
+              { name: 'Team', value: 'team' },
+              { name: 'Metadata', value: 'metadata' },
+            ],
+            default: [],
           },
         ],
-        default: 'list',
       },
-      {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
-        noDataExpression: true,
-        displayOptions: {
-          show: {
-            resource: ['message'],
-          },
-        },
-        options: [
-          {
-            name: 'Send By Phone Number',
-            value: 'sendByPhone',
-            action: 'Send Message By Phone Number',
-          },
-        ],
-        default: 'sendByPhone',
-      },
-      // Contact fields
-      {
-        displayName: 'Contact UUID',
-        name: 'contactUuid',
-        type: 'string',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['contact'],
-            operation: ['addTag', 'forward', 'sendMessage', 'sendTemplate'],
-          },
-        },
-        default: '',
-      },
-      {
-        displayName: 'Account ID',
-        name: 'accountId',
-        type: 'string',
-        required: true,
-        displayOptions: {
-          show: {
-            resource: ['contact', 'app', 'tag', 'channel', 'template', 'message'],
-          },
-        },
-        default: '',
-      },
-      // Additional fields would go here...
-      // This is a simplified version for demonstration
     ],
   };
 
-  async execute(this: IExecuteFunctions) {
+  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();
     const returnData = [];
-    const resource = this.getNodeParameter('resource', 0) as string;
-    const operation = this.getNodeParameter('operation', 0) as string;
 
     for (let i = 0; i < items.length; i++) {
       try {
-        let responseData;
+        const resource = this.getNodeParameter('resource', i) as string;
+        const accountId = this.getNodeParameter('accountId', i) as string;
+        const options = this.getNodeParameter('options', i, {}) as {
+          include?: string[];
+        };
 
-        if (resource === 'contact' && operation === 'list') {
-          const accountId = this.getNodeParameter('accountId', i);
-          const endpoint = `/accounts/${accountId}/contacts`;
-          responseData = await apiRequest.call(this, 'GET', endpoint);
-        }
-        // Add more operations here following the same pattern...
-        else {
-          throw new Error(`Operation '${operation}' for resource '${resource}' not implemented yet`);
+        const params = new URLSearchParams();
+
+        if (options.include?.length) {
+          params.append('include', options.include.join(','));
         }
 
+        const endpoint = `/accounts/${accountId}/${resource}s?${params.toString()}`;
+        const responseData = await apiRequest.call(this, 'GET', endpoint);
         returnData.push({ json: responseData });
       } catch (error) {
-        throw new NodeApiError(this.getNode(), error as JsonObject);
+        throw new NodeApiError(this.getNode(), error);
       }
     }
 
