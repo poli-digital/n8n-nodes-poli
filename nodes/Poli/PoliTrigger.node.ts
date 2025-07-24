@@ -20,15 +20,16 @@ interface IWebhookStorage {
 
 export class PoliTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Poli Trigger',
+		displayName: 'Trigger',
 		name: 'poliTrigger',
 		icon: 'file:poli.svg',
 		group: ['trigger'],
 		version: 1,
 		description: 'Trigger para receber webhooks da API da Poli',
 		defaults: {
-			name: 'Poli Trigger',
+			name: 'Trigger',
 		},
+		subtitle: '={{ $parameter["appName"] }}',
 		inputs: [],
 		outputs: ['main'],
 		credentials: [

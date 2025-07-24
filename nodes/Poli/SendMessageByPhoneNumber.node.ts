@@ -5,7 +5,7 @@ import { apiRequest } from './transport';
 export class SendMessageByPhoneNumber implements INodeType {
   description: INodeTypeDescription = {
     displayName: 'Send Message By Phone Number',
-    name: 'sendMessage',
+    name: 'sendMessageByPhoneNumber',
     icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
