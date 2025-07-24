@@ -5,18 +5,11 @@ import type {
 	IWebhookFunctions,
 	IWebhookResponseData,
 	IDataObject,
-	INodeExecutionData,
 	JsonObject,
 } from 'n8n-workflow';
 
-import { apiRequest } from './transport';
 import { NodeApiError } from 'n8n-workflow';
-
-interface IWebhookStorage {
-	webhookUrl: string;
-	applicationId: string;
-	events: string[];
-}
+import { apiRequest } from './transport';
 
 export class PoliTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -61,26 +54,10 @@ export class PoliTrigger implements INodeType {
 				name: 'events',
 				type: 'multiOptions',
 				options: [
-					{
-						name: 'Message Received',
-						value: 'message.received',
-						description: 'Quando uma nova mensagem é recebida',
-					},
-					{
-						name: 'Message Status Updated',
-						value: 'message.status',
-						description: 'Quando o status de uma mensagem é atualizado',
-					},
-					{
-						name: 'Contact Updated',
-						value: 'contact.updated',
-						description: 'Quando um contato é atualizado',
-					},
-					{
-						name: 'Contact Created',
-						value: 'contact.created',
-						description: 'Quando um novo contato é criado',
-					},
+					{ name: 'Message Received', value: 'message.received' },
+					{ name: 'Message Status Updated', value: 'message.status' },
+					{ name: 'Contact Updated', value: 'contact.updated' },
+					{ name: 'Contact Created', value: 'contact.created' },
 				],
 				default: ['message.received'],
 				required: true,
@@ -107,92 +84,73 @@ export class PoliTrigger implements INodeType {
 
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 		const bodyData = this.getBodyData() as IDataObject;
-		const headers = this.getHeaderData() as IDataObject;
 
 		if (!bodyData) {
 			throw new Error('Nenhum dado recebido no webhook');
 		}
 
-		// Filtrar informações desnecessárias do bodyData
-		const filteredBodyData = Object.keys(bodyData)
-			.filter((key) => ![
-				'_debug',
-				'webhookReceivedAt',
-				'webhookHeaders',
-				'baggage',
-				'x-request-id',
-				'x-real-ip',
-			].includes(key))
-			.reduce((obj, key) => {
-				obj[key] = bodyData[key];
-				return obj;
+		// Log para debug
+		console.log('📥 Webhook recebido:', JSON.stringify(bodyData, null, 2));
+
+		// Identifica o evento
+		const event = bodyData.event || bodyData.type || 'evento_não_identificado';
+
+		// Remove informações inúteis
+		const filtered = Object.keys(bodyData)
+			.filter((key) => !['_debug', 'webhookReceivedAt', 'webhookHeaders', 'baggage', 'x-request-id', 'x-real-ip'].includes(key))
+			.reduce((acc, key) => {
+				acc[key] = bodyData[key];
+				return acc;
 			}, {} as IDataObject);
 
-		// Adicionar os eventos conhecidos novamente
-		const knownEvents = [
-			'message.received',
-			'message.status',
-			'contact.updated',
-			'contact.created',
-		];
-
-		const returnData: IDataObject = {
-			...filteredBodyData,
-			events: knownEvents,
+		// Organiza a saída com base no tipo de evento
+		const structuredOutput: IDataObject = {
+			event,
+			timestamp: new Date().toISOString(),
+			payload: filtered,
 		};
 
 		return {
-			workflowData: [this.helpers.returnJsonArray([returnData])],
+			workflowData: [this.helpers.returnJsonArray([structuredOutput])],
 		};
 	}
 
 	async activate(this: IWebhookFunctions): Promise<void> {
 		const credentials = await this.getCredentials('poliApi');
-		
-		// Construir a URL do webhook usando as variáveis de ambiente
 		const webhookHost = process.env.WEBHOOK_URL || 'http://localhost:5678';
-		const webhookEndpoint = process.env.N8N_ENDPOINT_WEBHOOK_TEST || 'webhook-test';
+		const webhookEndpoint = process.env.N8N_ENDPOINT_WEBHOOK || 'webhook';
 		const webhookPath = this.getNodeParameter('webhookPath', 0) as string;
 		const webhookUrl = `${webhookHost}/${webhookEndpoint}/${webhookPath}`;
 
-		console.log('Webhook URL construída:', webhookUrl);
+		console.log('🚀 URL de webhook:', webhookUrl);
 
 		const accountUuid = credentials.accountUuid as string;
 		const events = this.getNodeParameter('events', 0) as string[];
 		const appName = this.getNodeParameter('appName', 0) as string;
+		const page = this.getNodeParameter('page', 0) as number || 1;
 
-		// Adicionar um parâmetro opcional para a página
-		const page = this.getNodeParameter('page', 0) as number || 1; // Página padrão é 1
-		const perPage = 100; // Número fixo de itens por página
+		const perPage = 100;
 
 		try {
-			// Verificar se já existe uma aplicação com este nome
-			// Atualizar a URL da requisição para incluir o parâmetro de página
+			// Verifica se app já existe
 			const appsResponse = await apiRequest.call(
 				this as unknown as IExecuteFunctions,
 				'GET',
-				`https://foundation-api.poli.digital/v3/accounts/${accountUuid}/applications?include=attributes&perPage=${perPage}&page=${page}`,
+				`/accounts/${accountUuid}/applications?include=attributes&perPage=${perPage}&page=${page}`
 			);
 
 			let applicationId: string;
-			let existingApp: any = null;
-
-			if (appsResponse.data && Array.isArray(appsResponse.data)) {
-				existingApp = appsResponse.data.find((app: any) => 
-					app.attributes && app.attributes.name === appName
-				);
-			}
+			const existingApp = appsResponse.data?.find((app: any) => app.attributes?.name === appName);
 
 			if (existingApp) {
 				applicationId = existingApp.id;
-				console.log('Usando aplicação existente:', applicationId);
+				console.log('🟢 App existente encontrado:', applicationId);
 			} else {
-				// Criar nova aplicação
 				const appData = {
 					visibility: 'PRIVATE',
 					attributes: {
 						name: appName,
-						description: 'App criado automaticamente pelo n8n para receber webhooks',
+						description: 'App criado pelo n8n para webhooks',
 						responsible: 'n8n',
 						email: 'n8n@poli.digital',
 						phone: '0000000000',
@@ -203,33 +161,23 @@ export class PoliTrigger implements INodeType {
 					this as unknown as IExecuteFunctions,
 					'POST',
 					`/accounts/${accountUuid}/applications?include=attributes`,
-					appData,
+					appData
 				);
 
-				if (!appResponse.data || !appResponse.data.id) {
-					throw new Error('Erro ao criar app na Poli');
-				}
-
 				applicationId = appResponse.data.id;
-				console.log('Nova aplicação criada:', applicationId);
+				console.log('🆕 Novo app criado:', applicationId);
 			}
 
-			// Verificar se já existe um webhook com esta URL
+			// Verifica se webhook já existe
 			const webhooksResponse = await apiRequest.call(
 				this as unknown as IExecuteFunctions,
 				'GET',
-				`/applications/${applicationId}/webhooks?include=url,subscriptions`,
+				`/applications/${applicationId}/webhooks?include=url,subscriptions`
 			);
 
-			let webhookExists = false;
-			if (webhooksResponse.data && Array.isArray(webhooksResponse.data)) {
-				webhookExists = webhooksResponse.data.some((webhook: any) => 
-					webhook.url === webhookUrl
-				);
-			}
+			const webhookExists = webhooksResponse.data?.some((webhook: any) => webhook.url === webhookUrl);
 
 			if (!webhookExists) {
-				// Criar novo webhook
 				const webhookData = {
 					url: webhookUrl,
 					subscriptions: events,
@@ -239,17 +187,16 @@ export class PoliTrigger implements INodeType {
 					this as unknown as IExecuteFunctions,
 					'POST',
 					`/applications/${applicationId}/webhooks?include=url,subscriptions`,
-					webhookData,
+					webhookData
 				);
 
-				console.log('Webhook criado com sucesso:', webhookUrl);
+				console.log('✅ Webhook criado:', webhookUrl);
 			} else {
-				console.log('Webhook já existe:', webhookUrl);
+				console.log('ℹ️ Webhook já registrado:', webhookUrl);
 			}
-
 		} catch (error) {
-			console.error('Erro ao ativar webhook:', error);
-			throw new NodeApiError(this.getNode(), error as unknown as JsonObject);
+			console.error('❌ Erro ao ativar webhook:', error);
+			throw new NodeApiError(this.getNode(), error as JsonObject);
 		}
 	}
 
@@ -259,41 +206,34 @@ export class PoliTrigger implements INodeType {
 		const appName = this.getNodeParameter('appName', 0) as string;
 
 		try {
-			// Buscar aplicações por nome
 			const appsResponse = await apiRequest.call(
 				this as unknown as IExecuteFunctions,
 				'GET',
-				`/accounts/${accountUuid}/applications?include=attributes`,
+				`/accounts/${accountUuid}/applications?include=attributes`
 			);
 
-			if (appsResponse.data && Array.isArray(appsResponse.data)) {
-				const app = appsResponse.data.find((app: any) => 
-					app.attributes && app.attributes.name === appName
+			const app = appsResponse.data?.find((app: any) => app.attributes?.name === appName);
+
+			if (app?.id) {
+				const webhooksResponse = await apiRequest.call(
+					this as unknown as IExecuteFunctions,
+					'GET',
+					`/applications/${app.id}/webhooks?include=url,subscriptions`
 				);
 
-				if (app && app.id) {
-					// Buscar webhooks da aplicação
-					const webhooksResponse = await apiRequest.call(
+				for (const webhook of webhooksResponse.data || []) {
+					await apiRequest.call(
 						this as unknown as IExecuteFunctions,
-						'GET',
-						`/applications/${app.id}/webhooks?include=url,subscriptions`,
+						'DELETE',
+						`/applications/${app.id}/webhooks/${webhook.id}`
 					);
-
-					if (webhooksResponse.data && Array.isArray(webhooksResponse.data)) {
-						// Deletar todos os webhooks da aplicação
-						for (const webhook of webhooksResponse.data) {
-							await apiRequest.call(
-								this as unknown as IExecuteFunctions,
-								'DELETE',
-								`/applications/${app.id}/webhooks/${webhook.id}`,
-							);
-						}
-					}
 				}
+
+				console.log('🧹 Webhooks removidos com sucesso');
 			}
 		} catch (error) {
-			console.error('Erro ao desativar webhook:', error);
-			// Não lançar erro para não bloquear a desativação
+			console.error('⚠️ Erro ao desativar webhook:', error);
+			// Não lança erro para evitar bloqueio de desativação
 		}
 	}
 }
