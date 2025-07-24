@@ -22,27 +22,26 @@ export class ForwardContact implements INodeType {
     ],
     properties: [
       {
-        displayName: 'Contact UUID',
+        displayName: 'Contact ID',
         name: 'contactUuid',
         type: 'string',
         default: '',
-        placeholder: 'e.g., 123e4567-e89b-12d3-a456-426614174000',
         description: 'UUID do contato que será encaminhado',
         required: true,
       },
       {
-        displayName: 'Encaminhar Para',
+        displayName: 'Forward to',
         name: 'forwardType',
         type: 'options',
         noDataExpression: true,
         options: [
           {
-            name: 'Usuário',
+            name: 'User',
             value: 'user',
             description: 'Encaminhar para um usuário específico',
           },
           {
-            name: 'Equipe',
+            name: 'Team',
             value: 'team',
             description: 'Encaminhar para uma equipe',
           },
@@ -52,11 +51,10 @@ export class ForwardContact implements INodeType {
         required: true,
       },
       {
-        displayName: 'UUID do Usuário',
+        displayName: 'User ID',
         name: 'userUuid',
         type: 'string',
         default: '',
-        placeholder: 'e.g., 123e4567-e89b-12d3-a456-426614174000',
         description: 'UUID do usuário que receberá o contato encaminhado',
         displayOptions: {
           show: {
@@ -66,11 +64,10 @@ export class ForwardContact implements INodeType {
         required: true,
       },
       {
-        displayName: 'UUID da Equipe',
+        displayName: 'Team ID',
         name: 'teamUuid',
         type: 'string',
         default: '',
-        placeholder: 'e.g., 123e4567-e89b-12d3-a456-426614174000',
         description: 'UUID da equipe que receberá o contato encaminhado',
         displayOptions: {
           show: {

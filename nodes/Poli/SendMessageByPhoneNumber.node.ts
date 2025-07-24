@@ -37,7 +37,7 @@ export class SendMessageByPhoneNumber implements INodeType {
         required: true,
       },
       {
-        displayName: 'Account Channel UUID',
+        displayName: 'Account Channel ID',
         name: 'accountChannelUuid',
         type: 'string',
         default: '',

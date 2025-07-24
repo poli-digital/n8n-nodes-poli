@@ -1,5 +1,5 @@
-import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError } from 'n8n-workflow';
-import { apiRequest } from '../transport'; // Ajuste o caminho, se necessário
+import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { apiRequest } from './transport'; // Ajuste o caminho, se necessário
 
 /**
  * Propriedades da UI para a operação 'List Contacts'
@@ -112,4 +112,24 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 	}
 
 	return [returnData];
+}
+
+export class ListContacts implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'List Contacts',
+		name: 'listContacts',
+		group: ['transform'],
+		version: 1,
+		description: 'List contacts from Poli API',
+		defaults: {
+			name: 'List Contacts',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: listContactsFields,
+	};
+
+	async execute(this: IExecuteFunctions) {
+		return executeListContacts.call(this);
+	}
 }

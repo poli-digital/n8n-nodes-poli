@@ -1,208 +1,252 @@
-import {
-  IExecuteFunctions,
-  INodeExecutionData,
-  INodeType,
-  INodeTypeDescription,
-} from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, INodePropertyOptions, INodeProperties } from 'n8n-workflow';
 
-import { NodeApiError } from 'n8n-workflow';
-import { apiRequest } from './transport';
+// Importações dos nodes individuais
+import { ListContacts } from './ListContacts.node';
+import { CreateTag } from './CreateTag.node';
+import { CreateApp } from './CreateApp.node';
+import { ListApps } from './ListApps.node';
+import { ListChannels } from './ListChannels.node';
+import { ListTemplates } from './ListTemplates.node';
+import { ListTags } from './ListTags.node';
+import { ListWebhooks } from './ListWebhooks.node';
+import { CreateWebhook } from './CreateWebhook.node';
+import { SendMessageByContactId } from './SendMessageByContactId.node';
+import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.node';
+import { SendTemplateByContactId } from './SendTemplateByContactId.node';
+import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.node';
+import { AddTagToContact } from './AddTagToContact.node';
+import { ForwardContact } from './ForwardContact.node';
 
 export class Poli implements INodeType {
-  description: INodeTypeDescription = {
-    displayName: 'Poli',
-    name: 'poli',
-    icon: 'file:poli.svg',
-    group: ['output'],
-    version: 1,
-    description: 'Unified Poli Node',
-    defaults: {
-      name: 'Poli',
-    },
-    inputs: ['main'],
-    outputs: ['main'],
-    credentials: [
-      {
-        name: 'poliApi',
-        required: true,
-      },
-    ],
-    properties: [
-      {
-        displayName: 'Resource',
-        name: 'resource',
-        type: 'options',
-        options: [
-          { name: 'App', value: 'app' },
-          { name: 'Channel', value: 'channel' },
-          { name: 'Contact', value: 'contact' },
-          { name: 'Template', value: 'template' },
-        ],
-        default: 'app',
-      },
-      {
-        displayName: 'Account ID',
-        name: 'accountId',
-        type: 'string',
-        default: '',
-        required: true,
-      },
+  description: INodeTypeDescription;
 
-      // OPTIONS - APP
-      {
-        displayName: 'Options (App)',
-        name: 'options',
-        type: 'collection',
-        default: {},
-        displayOptions: {
-          show: {
-            resource: ['app'],
-          },
+  constructor() {
+    const nodes = {
+      contact: {
+        list: new ListContacts(),
+        addTag: new AddTagToContact(),
+        forward: new ForwardContact(),
+      },
+      app: {
+        list: new ListApps(),
+        create: new CreateApp(),
+      },
+      tag: {
+        list: new ListTags(),
+        create: new CreateTag(),
+      },
+      message: {
+        sendByContactId: new SendMessageByContactId(),
+        sendByPhone: new SendMessageByPhoneNumber(),
+        sendTemplateByContactId: new SendTemplateByContactId(),
+        sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+      },
+      channel: {
+        list: new ListChannels(),
+      },
+      template: {
+        list: new ListTemplates(),
+      },
+      webhook: {
+        list: new ListWebhooks(),
+        create: new CreateWebhook(),
+      },
+    };
+
+    const collectProperties = () => {
+      const baseProperties = [
+        {
+          displayName: 'Resource',
+          name: 'resource',
+          type: 'options' as const,
+          noDataExpression: true,
+          options: [
+            { name: 'App', value: 'app' },
+            { name: 'Contact', value: 'contact' },
+            { name: 'Channel', value: 'channel' },
+            { name: 'Message', value: 'message' },
+            { name: 'Tag', value: 'tag' },
+            { name: 'Template', value: 'template' },
+            { name: 'Webhook', value: 'webhook' },
+          ],
+          default: 'contact',
         },
-        options: [
-          {
-            displayName: 'Include',
-            name: 'include',
-            type: 'multiOptions',
-            options: [
-              { name: 'Status', value: 'status' },
-              { name: 'Visibility', value: 'visibility' },
-              { name: 'Attributes', value: 'attributes' },
-              { name: 'Roles', value: 'roles' },
-              { name: 'Permissions', value: 'permissions' },
-              { name: 'Attachments', value: 'attachments' },
-              { name: 'Resources', value: 'resources' },
-              { name: 'Settings', value: 'settings' },
-              { name: 'Accounts', value: 'accounts' },
-              { name: 'Metadata', value: 'metadata' },
-            ],
-            default: [],
-          },
-        ],
-      },
-
-      // OPTIONS - CHANNEL
-      {
-        displayName: 'Options (Channel)',
-        name: 'options',
-        type: 'collection',
-        default: {},
-        displayOptions: {
-          show: {
-            resource: ['channel'],
-          },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['contact'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar todos os contatos' },
+            { name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
+            { name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
+          ],
+          default: 'list',
         },
-        options: [
-          {
-            displayName: 'Include',
-            name: 'include',
-            type: 'multiOptions',
-            options: [
-              { name: 'UID', value: 'uid' },
-              { name: 'Name', value: 'name' },
-              { name: 'Status', value: 'status' },
-              { name: 'Provider', value: 'provider' },
-              { name: 'Integrator', value: 'integrator' },
-              { name: 'Config', value: 'config' },
-              { name: 'Metadata', value: 'metadata' },
-            ],
-            default: [],
-          },
-        ],
-      },
-
-      // OPTIONS - CONTACT
-      {
-        displayName: 'Options (Contact)',
-        name: 'options',
-        type: 'collection',
-        default: {},
-        displayOptions: {
-          show: {
-            resource: ['contact'],
-          },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['app'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar aplicações' },
+            { name: 'Create', value: 'create', description: 'Criar nova aplicação' },
+          ],
+          default: 'list',
         },
-        options: [
-          {
-            displayName: 'Include',
-            name: 'include',
-            type: 'multiOptions',
-            options: [
-              { name: 'Type', value: 'type' },
-              { name: 'Chat Status', value: 'chat_status' },
-              { name: 'Read Status', value: 'read_status' },
-              { name: 'Attributes', value: 'attributes' },
-              { name: 'Account', value: 'account' },
-              { name: 'Attendant', value: 'attendant' },
-              { name: 'Contact Channels', value: 'contact_channels' },
-              { name: 'Current Attendance', value: 'current_attendance' },
-              { name: 'Last Message', value: 'last_message' },
-              { name: 'Tags', value: 'tags' },
-              { name: 'Addresses', value: 'addresses' },
-              { name: 'Metadata', value: 'metadata' },
-            ],
-            default: [],
-          },
-        ],
-      },
-
-      // OPTIONS - TEMPLATE
-      {
-        displayName: 'Options (Template)',
-        name: 'options',
-        type: 'collection',
-        default: {},
-        displayOptions: {
-          show: {
-            resource: ['template'],
-          },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['tag'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar tags' },
+            { name: 'Create', value: 'create', description: 'Criar nova tag' },
+          ],
+          default: 'list',
         },
-        options: [
-          {
-            displayName: 'Include',
-            name: 'include',
-            type: 'multiOptions',
-            options: [
-              { name: 'Key', value: 'key' },
-              { name: 'Version', value: 'version' },
-              { name: 'Status', value: 'status' },
-              { name: 'Message', value: 'message' },
-              { name: 'Team', value: 'team' },
-              { name: 'Metadata', value: 'metadata' },
-            ],
-            default: [],
-          },
-        ],
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['message'] } },
+          options: [
+            { name: 'Send By Contact ID', value: 'sendByContactId', description: 'Enviar mensagem por ID do contato' },
+            { name: 'Send By Phone', value: 'sendByPhone', description: 'Enviar mensagem por número de telefone' },
+            { name: 'Send Template By Contact ID', value: 'sendTemplateByContactId', description: 'Enviar template por ID do contato' },
+            { name: 'Send Template By Phone Number', value: 'sendTemplateByPhoneNumber', description: 'Enviar template por número de telefone' },
+          ],
+          default: 'sendByContactId',
+        },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['channel'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar canais' },
+          ],
+          default: 'list',
+        },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['template'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar templates' },
+          ],
+          default: 'list',
+        },
+        {
+          displayName: 'Operation',
+          name: 'operation',
+          type: 'options' as const,
+          noDataExpression: true,
+          displayOptions: { show: { resource: ['webhook'] } },
+          options: [
+            { name: 'List', value: 'list', description: 'Listar webhooks' },
+            { name: 'Create', value: 'create', description: 'Criar webhook' },
+          ],
+          default: 'list',
+        },
+      ];
+
+      const allProperties: INodeProperties[] = [...baseProperties];
+
+      Object.entries(nodes).forEach(([resource, operations]) => {
+        Object.entries(operations).forEach(([operation, nodeInstance]) => {
+          const nodeProperties = nodeInstance.description.properties || [];
+
+          const specificProperties = nodeProperties.filter(
+            (prop) => prop.name !== 'resource' && prop.name !== 'operation'
+          );
+
+          specificProperties.forEach((prop) => {
+            const modifiedProp: INodeProperties = {
+              ...prop,
+              displayOptions: {
+                show: {
+                  resource: [resource],
+                  operation: [operation],
+                },
+              },
+            };
+            allProperties.push(modifiedProp);
+          });
+        });
+      });
+
+      return allProperties;
+    };
+
+    this.description = {
+      displayName: 'Poli',
+      name: 'poli',
+      icon: 'file:poli.svg',
+      group: ['output'],
+      version: 1,
+      description: 'Node principal para interagir com a API da Poli',
+      defaults: { name: 'Poli' },
+      inputs: ['main'],
+      outputs: ['main'],
+      credentials: [{ name: 'poliApi', required: true }],
+      properties: collectProperties(),
+    };
+  }
+
+  async execute(this: IExecuteFunctions) {
+    const resource = this.getNodeParameter('resource', 0) as string;
+    const operation = this.getNodeParameter('operation', 0) as string;
+
+    const nodeMap: Record<string, Record<string, any>> = {
+      contact: {
+        list: new ListContacts(),
+        addTag: new AddTagToContact(),
+        forward: new ForwardContact(),
       },
-    ],
-  };
+      app: {
+        list: new ListApps(),
+        create: new CreateApp(),
+      },
+      tag: {
+        list: new ListTags(),
+        create: new CreateTag(),
+      },
+      message: {
+        sendByContactId: new SendMessageByContactId(),
+        sendByPhone: new SendMessageByPhoneNumber(),
+        sendTemplateByContactId: new SendTemplateByContactId(),
+        sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+      },
+      channel: {
+        list: new ListChannels(),
+      },
+      template: {
+        list: new ListTemplates(),
+      },
+      webhook: {
+        list: new ListWebhooks(),
+        create: new CreateWebhook(),
+      },
+    };
 
-  async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-    const items = this.getInputData();
-    const returnData = [];
-
-    for (let i = 0; i < items.length; i++) {
-      try {
-        const resource = this.getNodeParameter('resource', i) as string;
-        const accountId = this.getNodeParameter('accountId', i) as string;
-        const options = this.getNodeParameter('options', i, {}) as {
-          include?: string[];
-        };
-
-        const params = new URLSearchParams();
-
-        if (options.include?.length) {
-          params.append('include', options.include.join(','));
-        }
-
-        const endpoint = `/accounts/${accountId}/${resource}s?${params.toString()}`;
-        const responseData = await apiRequest.call(this, 'GET', endpoint);
-        returnData.push({ json: responseData });
-      } catch (error) {
-        throw new NodeApiError(this.getNode(), error);
-      }
+    const resourceNodes = nodeMap[resource];
+    if (!resourceNodes) {
+      throw new Error(`Resource '${resource}' não encontrado`);
     }
 
-    return [returnData];
+    const targetNode = resourceNodes[operation];
+    if (!targetNode) {
+      throw new Error(`Operação '${operation}' não encontrada para o resource '${resource}'`);
+    }
+
+    return await targetNode.execute.call(this);
   }
 }

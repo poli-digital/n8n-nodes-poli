@@ -1,5 +1,5 @@
-import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError } from 'n8n-workflow';
-import { apiRequest } from '../transport'; // Ajuste o caminho do import se necessário
+import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { apiRequest } from './transport'; // Ajuste o caminho do import se necessário
 
 /**
  * Propriedades da UI para a operação 'List Webhooks'
@@ -114,4 +114,24 @@ export async function executeListWebhooks(this: IExecuteFunctions): Promise<any>
 	}
 
 	return [returnData];
+}
+
+export class ListWebhooks implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'List Webhooks',
+		name: 'listWebhooks',
+		group: ['transform'],
+		version: 1,
+		description: 'List webhooks from Poli API',
+		defaults: {
+			name: 'List Webhooks',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: listWebhooksFields,
+	};
+
+	async execute(this: IExecuteFunctions) {
+		return executeListWebhooks.call(this);
+	}
 }

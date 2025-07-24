@@ -1,10 +1,10 @@
-import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError } from 'n8n-workflow';
-import { apiRequest } from '../transport'; // Ajuste o caminho do import, se necessário
+import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { apiRequest } from './transport'; // Ajuste o caminho do import, se necessário
 
 /**
- * Propriedades da UI para a operação 'List Contacts'
+ * Propriedades da UI para a operação 'List Channels'
  */
-export const listContactsFields: INodeProperties[] = [
+export const listChannelsFields: INodeProperties[] = [
 	{
 		displayName: 'Options',
 		name: 'options',
@@ -75,9 +75,9 @@ export const listContactsFields: INodeProperties[] = [
 ];
 
 /**
- * Lógica de execução para a operação 'List Contacts'
+ * Lógica de execução para a operação 'List Channels'
  */
-export async function executeListContacts(this: IExecuteFunctions): Promise<any> {
+export async function executeListChannels(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
@@ -103,7 +103,7 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 			if (options.include?.length) qs.include = options.include.join(',');
 			if (options.query) qs.query = JSON.stringify(options.query);
 
-			const endpoint = `/accounts/${accountId}/contacts`;
+			const endpoint = `/accounts/${accountId}/channels`;
 			const responseData = await apiRequest.call(this, 'GET', endpoint, {}, qs);
 			returnData.push({ json: responseData });
 		} catch (error) {
@@ -112,4 +112,24 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 	}
 
 	return [returnData];
+}
+
+export class ListChannels implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'List Channels',
+		name: 'listChannels',
+		group: ['transform'],
+		version: 1,
+		description: 'List channels from Poli API',
+		defaults: {
+			name: 'List Channels',
+		},
+		inputs: ['main'],
+		outputs: ['main'],
+		properties: listChannelsFields,
+	};
+
+	async execute(this: IExecuteFunctions) {
+		return executeListChannels.call(this);
+	}
 }
