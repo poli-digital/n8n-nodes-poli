@@ -63,6 +63,7 @@ export const listWebhooksFields: INodeProperties[] = [
 				name: 'query',
 				type: 'string',
 				default: '',
+				description: 'Raw query string (e.g. id=18&name=gabriel)',
 			},
 		],
 	},

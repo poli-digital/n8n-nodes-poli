@@ -20,11 +20,11 @@ export const listChannelsFields: INodeProperties[] = [
 				description: 'Texto para busca',
 			},
 			{
-				displayName: 'Query (JSON)',
+				displayName: 'Query',
 				name: 'query',
-				type: 'json',
+				type: 'string',
 				default: '',
-				description: 'Filtro avançado no formato JSON',
+				description: 'Raw query string (e.g. id=18&name=gabriel)',
 			},
 			{
 				displayName: 'Order',

@@ -84,7 +84,7 @@ export class ListTemplates implements INodeType {
             name: 'query',
             type: 'string',
             default: '',
-            description: 'Advanced filtering (e.g., id=18 or name=gabriel)',
+            description: 'Raw query string (e.g. id=18&name=gabriel)',
           },
         ],
       },

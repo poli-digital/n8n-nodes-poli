@@ -62,11 +62,11 @@ export class ListTags implements INodeType {
             default: 100,
           },
           {
-            displayName: 'Query (JSON)',
+            displayName: 'Query',
             name: 'query',
             type: 'string',
             default: '',
-            description: 'Ex: {"status": "ACTIVE"}',
+            description: 'Raw query string (e.g. id=18&name=gabriel)',
           },
           {
             displayName: 'Include',
