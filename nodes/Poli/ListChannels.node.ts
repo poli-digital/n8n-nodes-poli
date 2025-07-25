@@ -1,10 +1,15 @@
-import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { apiRequest } from './transport'; // Ajuste o caminho do import, se necessário
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
+import { apiRequest } from './transport';
 
-/**
- * Propriedades da UI para a operação 'List Channels'
- */
 export const listChannelsFields: INodeProperties[] = [
+	{
+		displayName: 'Account ID',
+		name: 'accountId',
+		type: 'string',
+		default: '',
+		required: true,
+		description: 'ID da conta',
+	},
 	{
 		displayName: 'Options',
 		name: 'options',
@@ -24,7 +29,7 @@ export const listChannelsFields: INodeProperties[] = [
 				name: 'query',
 				type: 'string',
 				default: '',
-				description: 'Raw query string (e.g. id=18&name=gabriel)',
+				description: 'Raw query string (ex: id=18&name=gabriel)',
 			},
 			{
 				displayName: 'Order',
@@ -74,16 +79,12 @@ export const listChannelsFields: INodeProperties[] = [
 	},
 ];
 
-/**
- * Lógica de execução para a operação 'List Channels'
- */
 export async function executeListChannels(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			// 'accountId' será lido do campo global do node principal
 			const accountId = this.getNodeParameter('accountId', i) as string;
 			const options = this.getNodeParameter('options', i, {}) as {
 				search?: string;
@@ -91,20 +92,28 @@ export async function executeListChannels(this: IExecuteFunctions): Promise<any>
 				page?: number;
 				perPage?: number;
 				include?: string[];
-				query?: JsonObject;
+				query?: string;
 			};
 
-			const qs: { [key: string]: string } = {};
+			const params = new URLSearchParams();
 
-			if (options.search) qs.search = options.search;
-			if (options.order) qs.order = options.order;
-			if (options.page) qs.page = options.page.toString();
-			if (options.perPage) qs.perPage = options.perPage.toString();
-			if (options.include?.length) qs.include = options.include.join(',');
-			if (options.query) qs.query = JSON.stringify(options.query);
+			if (options.search) params.append('search', options.search);
+			if (options.order) params.append('order', options.order);
+			if (options.page) params.append('page', options.page.toString());
+			if (options.perPage) params.append('perPage', options.perPage.toString());
+			if (options.include?.length) params.append('include', options.include.join(','));
 
-			const endpoint = `/accounts/${accountId}/channels`;
-			const responseData = await apiRequest.call(this, 'GET', endpoint, {}, qs);
+			if (options.query) {
+				for (const part of options.query.split('&')) {
+					const [key, value] = part.split('=');
+					if (key && value) {
+						params.append(key.trim(), value.trim());
+					}
+				}
+			}
+
+			const endpoint = `/accounts/${accountId}/channels?${params.toString()}`;
+			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
 		} catch (error) {
 			throw new NodeApiError(this.getNode(), error as JsonObject);
