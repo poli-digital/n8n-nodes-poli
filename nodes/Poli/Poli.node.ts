@@ -169,15 +169,69 @@ export class Poli implements INodeType {
           );
 
           specificProperties.forEach((prop) => {
-            const modifiedProp: INodeProperties = {
-              ...prop,
-              displayOptions: {
-                show: {
-                  resource: [resource],
-                  operation: [operation],
-                },
-              },
-            };
+            let modifiedProp: INodeProperties;
+
+            // Tratamento especial para propriedades do ForwardContact
+            if (resource === 'contact' && operation === 'forward') {
+              if (prop.name === 'userUuid') {
+                modifiedProp = {
+                  ...prop,
+                  displayOptions: {
+                    show: {
+                      resource: ['contact'],
+                      operation: ['forward'],
+                      forwardType: ['user'],
+                    },
+                  },
+                };
+              } else if (prop.name === 'teamUuid') {
+                modifiedProp = {
+                  ...prop,
+                  displayOptions: {
+                    show: {
+                      resource: ['contact'],
+                      operation: ['forward'],
+                      forwardType: ['team'],
+                    },
+                  },
+                };
+              } else {
+                // Para outras propriedades do ForwardContact
+                modifiedProp = {
+                  ...prop,
+                  displayOptions: {
+                    show: {
+                      resource: [resource],
+                      operation: [operation],
+                    },
+                  },
+                };
+              }
+            } else {
+              // Para todos os outros nós, usar a lógica original
+              if (prop.displayOptions?.show) {
+                modifiedProp = {
+                  ...prop,
+                  displayOptions: {
+                    show: {
+                      resource: [resource],
+                      operation: [operation],
+                      ...prop.displayOptions.show,
+                    },
+                  },
+                };
+              } else {
+                modifiedProp = {
+                  ...prop,
+                  displayOptions: {
+                    show: {
+                      resource: [resource],
+                      operation: [operation],
+                    },
+                  },
+                };
+              }
+            }
             allProperties.push(modifiedProp);
           });
         });
