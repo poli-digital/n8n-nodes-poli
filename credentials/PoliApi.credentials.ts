@@ -3,7 +3,7 @@ import type { ICredentialType, INodeProperties } from 'n8n-workflow';
 export class PoliApi implements ICredentialType {
   name = 'poliApi';
   displayName = 'Poli';
-  icon = 'file:Poli/poli.svg';
+  icon = 'file:../nodes/Poli/poli.svg';
   properties: INodeProperties[] = [
     {
       displayName: 'API Key',
