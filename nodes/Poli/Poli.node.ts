@@ -1,4 +1,10 @@
-import { IExecuteFunctions, INodeType, INodeTypeDescription, INodePropertyOptions, INodeProperties } from 'n8n-workflow';
+import {
+	IExecuteFunctions,
+	INodeType,
+	INodeTypeDescription,
+	INodePropertyOptions,
+	INodeProperties,
+} from 'n8n-workflow';
 
 // Importações dos nodes individuais
 import { ListContacts } from './ListContacts.node';
@@ -16,291 +22,288 @@ import { SendTemplateByContactId } from './SendTemplateByContactId.node';
 import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.node';
 import { AddTagToContact } from './AddTagToContact.node';
 import { ForwardContact } from './ForwardContact.node';
+import { ListAccounts } from './ListAccounts.node'; 
 
 export class Poli implements INodeType {
-  description: INodeTypeDescription;
+	description: INodeTypeDescription;
 
-  constructor() {
-    const nodes = {
-      contact: {
-        list: new ListContacts(),
-        addTag: new AddTagToContact(),
-        forward: new ForwardContact(),
-      },
-      app: {
-        list: new ListApps(),
-        create: new CreateApp(),
-      },
-      tag: {
-        list: new ListTags(),
-        create: new CreateTag(),
-      },
-      message: {
-        sendByContactId: new SendMessageByContactId(),
-        sendByPhone: new SendMessageByPhoneNumber(),
-        sendTemplateByContactId: new SendTemplateByContactId(),
-        sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
-      },
-      channel: {
-        list: new ListChannels(),
-      },
-      template: {
-        list: new ListTemplates(),
-      },
-      webhook: {
-        list: new ListWebhooks(),
-        create: new CreateWebhook(),
-      },
-    };
+	constructor() {
+		const nodes = {
+			contact: {
+				list: new ListContacts(),
+				addTag: new AddTagToContact(),
+				forward: new ForwardContact(),
+			},
+			app: {
+				list: new ListApps(),
+				create: new CreateApp(),
+			},
+			tag: {
+				list: new ListTags(),
+				create: new CreateTag(),
+			},
+			message: {
+				sendByContactId: new SendMessageByContactId(),
+				sendByPhone: new SendMessageByPhoneNumber(),
+				sendTemplateByContactId: new SendTemplateByContactId(),
+				sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+			},
+			channel: {
+				list: new ListChannels(),
+			},
+			template: {
+				list: new ListTemplates(),
+			},
+			webhook: {
+				list: new ListWebhooks(),
+				create: new CreateWebhook(),
+			},
+			account: {
+				list: new ListAccounts(), 
+			},
+		};
 
-    const collectProperties = () => {
-      const baseProperties = [
-        {
-          displayName: 'Resource',
-          name: 'resource',
-          type: 'options' as const,
-          noDataExpression: true,
-          options: [
-            { name: 'App', value: 'app' },
-            { name: 'Contact', value: 'contact' },
-            { name: 'Channel', value: 'channel' },
-            { name: 'Message', value: 'message' },
-            { name: 'Tag', value: 'tag' },
-            { name: 'Template', value: 'template' },
-            { name: 'Webhook', value: 'webhook' },
+		const collectProperties = () => {
+			const baseProperties: INodeProperties[] = [
+				{
+					displayName: 'Resource',
+					name: 'resource',
+					type: 'options',
+					noDataExpression: true,
+					options: [
+						{ name: 'App', value: 'app' },
+						{ name: 'Contact', value: 'contact' },
+						{ name: 'Channel', value: 'channel' },
+						{ name: 'Message', value: 'message' },
+						{ name: 'Tag', value: 'tag' },
+						{ name: 'Template', value: 'template' },
+						{ name: 'Webhook', value: 'webhook' },
+						{ name: 'Account', value: 'account' }, 
           ],
-          default: 'contact',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['contact'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar todos os contatos' },
-            { name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
-            { name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
-          ],
-          default: 'list',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['app'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar aplicações' },
-            { name: 'Create', value: 'create', description: 'Criar nova aplicação' },
-          ],
-          default: 'list',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['tag'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar tags' },
-            { name: 'Create', value: 'create', description: 'Criar nova tag' },
-          ],
-          default: 'list',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['message'] } },
-          options: [
-            { name: 'Send By Contact ID', value: 'sendByContactId', description: 'Enviar mensagem por ID do contato' },
-            { name: 'Send By Phone', value: 'sendByPhone', description: 'Enviar mensagem por número de telefone' },
-            { name: 'Send Template By Contact ID', value: 'sendTemplateByContactId', description: 'Enviar template por ID do contato' },
-            { name: 'Send Template By Phone Number', value: 'sendTemplateByPhoneNumber', description: 'Enviar template por número de telefone' },
-          ],
-          default: 'sendByContactId',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['channel'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar canais' },
-          ],
-          default: 'list',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['template'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar templates' },
-          ],
-          default: 'list',
-        },
-        {
-          displayName: 'Operation',
-          name: 'operation',
-          type: 'options' as const,
-          noDataExpression: true,
-          displayOptions: { show: { resource: ['webhook'] } },
-          options: [
-            { name: 'List', value: 'list', description: 'Listar webhooks' },
-            { name: 'Create', value: 'create', description: 'Criar webhook' },
-          ],
-          default: 'list',
-        },
-      ];
+					default: 'contact',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['contact'] } },
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar todos os contatos' },
+						{ name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
+						{ name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
+					],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['app'] } },
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar aplicações' },
+						{ name: 'Create', value: 'create', description: 'Criar nova aplicação' },
+					],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['tag'] } },
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar tags' },
+						{ name: 'Create', value: 'create', description: 'Criar nova tag' },
+					],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['message'] } },
+					options: [
+						{ name: 'Send By Contact ID', value: 'sendByContactId', description: 'Enviar mensagem por ID do contato' },
+						{ name: 'Send By Phone', value: 'sendByPhone', description: 'Enviar mensagem por número de telefone' },
+						{ name: 'Send Template By Contact ID', value: 'sendTemplateByContactId', description: 'Enviar template por ID do contato' },
+						{ name: 'Send Template By Phone Number', value: 'sendTemplateByPhoneNumber', description: 'Enviar template por número de telefone' },
+					],
+					default: 'sendByContactId',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['channel'] } },
+					options: [{ name: 'List', value: 'list', description: 'Listar canais' }],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['template'] } },
+					options: [{ name: 'List', value: 'list', description: 'Listar templates' }],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['webhook'] } },
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar webhooks' },
+						{ name: 'Create', value: 'create', description: 'Criar webhook' },
+					],
+					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['account'] } },
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar contas da organização' },
+					],
+					default: 'list',
+				},
+			];
 
-      const allProperties: INodeProperties[] = [...baseProperties];
+			const allProperties: INodeProperties[] = [...baseProperties];
 
-      Object.entries(nodes).forEach(([resource, operations]) => {
-        Object.entries(operations).forEach(([operation, nodeInstance]) => {
-          const nodeProperties = nodeInstance.description.properties || [];
+			Object.entries(nodes).forEach(([resource, operations]) => {
+				Object.entries(operations).forEach(([operation, nodeInstance]) => {
+					const nodeProperties = nodeInstance.description.properties || [];
 
-          const specificProperties = nodeProperties.filter(
-            (prop) => prop.name !== 'resource' && prop.name !== 'operation'
-          );
+					const specificProperties = nodeProperties.filter(
+						(prop) => prop.name !== 'resource' && prop.name !== 'operation',
+					);
 
-          specificProperties.forEach((prop) => {
-            let modifiedProp: INodeProperties;
+					specificProperties.forEach((prop) => {
+						let modifiedProp: INodeProperties;
 
-            // Tratamento especial para propriedades do ForwardContact
-            if (resource === 'contact' && operation === 'forward') {
-              if (prop.name === 'userUuid') {
-                modifiedProp = {
-                  ...prop,
-                  displayOptions: {
-                    show: {
-                      resource: ['contact'],
-                      operation: ['forward'],
-                      forwardType: ['user'],
-                    },
-                  },
-                };
-              } else if (prop.name === 'teamUuid') {
-                modifiedProp = {
-                  ...prop,
-                  displayOptions: {
-                    show: {
-                      resource: ['contact'],
-                      operation: ['forward'],
-                      forwardType: ['team'],
-                    },
-                  },
-                };
-              } else {
-                // Para outras propriedades do ForwardContact
-                modifiedProp = {
-                  ...prop,
-                  displayOptions: {
-                    show: {
-                      resource: [resource],
-                      operation: [operation],
-                    },
-                  },
-                };
-              }
-            } else {
-              // Para todos os outros nós, usar a lógica original
-              if (prop.displayOptions?.show) {
-                modifiedProp = {
-                  ...prop,
-                  displayOptions: {
-                    show: {
-                      resource: [resource],
-                      operation: [operation],
-                      ...prop.displayOptions.show,
-                    },
-                  },
-                };
-              } else {
-                modifiedProp = {
-                  ...prop,
-                  displayOptions: {
-                    show: {
-                      resource: [resource],
-                      operation: [operation],
-                    },
-                  },
-                };
-              }
-            }
-            allProperties.push(modifiedProp);
-          });
-        });
-      });
+						if (resource === 'contact' && operation === 'forward') {
+							if (prop.name === 'userUuid') {
+								modifiedProp = {
+									...prop,
+									displayOptions: {
+										show: {
+											resource: ['contact'],
+											operation: ['forward'],
+											forwardType: ['user'],
+										},
+									},
+								};
+							} else if (prop.name === 'teamUuid') {
+								modifiedProp = {
+									...prop,
+									displayOptions: {
+										show: {
+											resource: ['contact'],
+											operation: ['forward'],
+											forwardType: ['team'],
+										},
+									},
+								};
+							} else {
+								modifiedProp = {
+									...prop,
+									displayOptions: {
+										show: {
+											resource: [resource],
+											operation: [operation],
+										},
+									},
+								};
+							}
+						} else {
+							modifiedProp = {
+								...prop,
+								displayOptions: {
+									show: {
+										resource: [resource],
+										operation: [operation],
+										...(prop.displayOptions?.show || {}),
+									},
+								},
+							};
+						}
 
-      return allProperties;
-    };
+						allProperties.push(modifiedProp);
+					});
+				});
+			});
 
-    this.description = {
-      displayName: 'Poli',
-      name: 'poli',
-      icon: 'file:poli.svg',
-      group: ['output'],
-      version: 1,
-      description: 'Node principal para interagir com a API da Poli',
-      defaults: { name: 'Poli' },
-      inputs: ['main'],
-      outputs: ['main'],
-      credentials: [{ name: 'poliApi', required: true }],
-      properties: collectProperties(),
-    };
-  }
+			return allProperties;
+		};
 
-  async execute(this: IExecuteFunctions) {
-    const resource = this.getNodeParameter('resource', 0) as string;
-    const operation = this.getNodeParameter('operation', 0) as string;
+		this.description = {
+			displayName: 'Poli',
+			name: 'poli',
+			icon: 'file:poli.svg',
+			group: ['output'],
+			version: 1,
+			description: 'Node principal para interagir com a API da Poli',
+			defaults: { name: 'Poli' },
+			inputs: ['main'],
+			outputs: ['main'],
+			credentials: [{ name: 'poliApi', required: true }],
+			properties: collectProperties(),
+		};
+	}
 
-    const nodeMap: Record<string, Record<string, any>> = {
-      contact: {
-        list: new ListContacts(),
-        addTag: new AddTagToContact(),
-        forward: new ForwardContact(),
-      },
-      app: {
-        list: new ListApps(),
-        create: new CreateApp(),
-      },
-      tag: {
-        list: new ListTags(),
-        create: new CreateTag(),
-      },
-      message: {
-        sendByContactId: new SendMessageByContactId(),
-        sendByPhone: new SendMessageByPhoneNumber(),
-        sendTemplateByContactId: new SendTemplateByContactId(),
-        sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
-      },
-      channel: {
-        list: new ListChannels(),
-      },
-      template: {
-        list: new ListTemplates(),
-      },
-      webhook: {
-        list: new ListWebhooks(),
-        create: new CreateWebhook(),
-      },
-    };
+	async execute(this: IExecuteFunctions) {
+		const resource = this.getNodeParameter('resource', 0) as string;
+		const operation = this.getNodeParameter('operation', 0) as string;
 
-    const resourceNodes = nodeMap[resource];
-    if (!resourceNodes) {
-      throw new Error(`Resource '${resource}' não encontrado`);
-    }
+		const nodeMap: Record<string, Record<string, any>> = {
+			contact: {
+				list: new ListContacts(),
+				addTag: new AddTagToContact(),
+				forward: new ForwardContact(),
+			},
+			app: {
+				list: new ListApps(),
+				create: new CreateApp(),
+			},
+			tag: {
+				list: new ListTags(),
+				create: new CreateTag(),
+			},
+			message: {
+				sendByContactId: new SendMessageByContactId(),
+				sendByPhone: new SendMessageByPhoneNumber(),
+				sendTemplateByContactId: new SendTemplateByContactId(),
+				sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+			},
+			channel: {
+				list: new ListChannels(),
+			},
+			template: {
+				list: new ListTemplates(),
+			},
+			webhook: {
+				list: new ListWebhooks(),
+				create: new CreateWebhook(),
+			},
+			account: {
+				list: new ListAccounts(), 
+			},
+		};
 
-    const targetNode = resourceNodes[operation];
-    if (!targetNode) {
-      throw new Error(`Operação '${operation}' não encontrada para o resource '${resource}'`);
-    }
+		const resourceNodes = nodeMap[resource];
+		if (!resourceNodes) throw new Error(`Resource '${resource}' não encontrado`);
 
-    return await targetNode.execute.call(this);
-  }
+		const targetNode = resourceNodes[operation];
+		if (!targetNode) throw new Error(`Operação '${operation}' não encontrada para o resource '${resource}'`);
+
+		return await targetNode.execute.call(this);
+	}
 }
