@@ -1,4 +1,11 @@
-import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
+import {
+	IExecuteFunctions,
+	INodeType,
+	INodeTypeDescription,
+	JsonObject,
+	NodeApiError,
+	INodeProperties,
+} from 'n8n-workflow';
 import { apiRequest } from './transport';
 
 export const listChannelsFields: INodeProperties[] = [
@@ -112,7 +119,8 @@ export async function executeListChannels(this: IExecuteFunctions): Promise<any>
 				}
 			}
 
-			const endpoint = `/accounts/${accountId}/channels?${params.toString()}`;
+			const endpoint = `/accounts/${accountId}/account-channels?${params.toString()}`;
+
 			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
 		} catch (error) {
@@ -127,7 +135,7 @@ export class ListChannels implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'List Channels',
 		name: 'listChannels',
-		group: ['transform'],
+		group: ['output'],
 		version: 1,
 		description: 'List channels from Poli API',
 		defaults: {
@@ -138,7 +146,7 @@ export class ListChannels implements INodeType {
 		properties: listChannelsFields,
 	};
 
-	async execute(this: IExecuteFunctions) {
+	async execute(this: IExecuteFunctions): Promise<any> {
 		return executeListChannels.call(this);
 	}
 }
