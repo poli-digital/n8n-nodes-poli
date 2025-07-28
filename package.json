@@ -1,5 +1,5 @@
 {
-  "name": "@poli-digital/n8n-nodes-poli",
+ "name": "@poli-digital/n8n-nodes-poli",
   "version": "0.1.0",
   "description": "Nó para interagir com a API da Poli",
   "displayName": "Poli",
@@ -7,13 +7,13 @@
     "n8n-community-node-package"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/PedroPi127/n8n-nodes-poli",
+  "homepage": "https://github.com/poli-digital/n8n-nodes-poli.git",
   "author": {
     "name": "PedroPi127"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PedroPi127/n8n-nodes-poli.git"
+    "url": "https://github.com/poli-digital/n8n-nodes-poli.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,9 +21,10 @@
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    "lint": "eslint -c .eslintrc.js nodes/ credentials/ package.json",
+    "lintfix": "eslint -c .eslintrc.js nodes/ credentials/ package.json --fix",
+   "prepublishOnly": "npm run build"
+
   },
   "files": [
     "dist"
@@ -39,10 +40,7 @@
       "dist/nodes/Poli/ForwardContact.node.js"
     ]
   },
-  "dependencies": {
-    "n8n-core": "^0.125.0",
-    "n8n-workflow": "^0.107.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
