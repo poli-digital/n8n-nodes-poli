@@ -1,59 +1,58 @@
 {
  "name": "@poli-digital/n8n-nodes-poli",
-  "version": "0.1.0",
-  "description": "Nó para interagir com a API da Poli",
-  "displayName": "Poli",
-  "keywords": [
-    "n8n-community-node-package"
+ "version": "0.1.0",
+ "description": "Nó para interagir com a API da Poli",
+ "displayName": "Poli",
+ "keywords": [
+  "n8n-community-node-package"
+ ],
+ "license": "MIT",
+ "homepage": "https://github.com/poli-digital/n8n-nodes-poli.git",
+ "author": {
+  "name": "PedroPi127"
+ },
+ "repository": {
+  "type": "git",
+  "url": "https://github.com/poli-digital/n8n-nodes-poli.git"
+ },
+ "main": "dist/index.js",
+ "types": "dist/index.d.ts",
+ "scripts": {
+  "build": "tsc && gulp build:icons",
+  "dev": "tsc --watch",
+  "format": "prettier nodes credentials --write",
+  "lint": "eslint -c .eslintrc.js nodes/ credentials/ package.json",
+  "lintfix": "eslint -c .eslintrc.js nodes/ credentials/ package.json --fix",
+  "prepublishOnly": "npm run build"
+ },
+ "files": [
+  "dist"
+ ],
+ "n8n": {
+  "n8nNodesApiVersion": 1,
+  "credentials": [
+   "dist/credentials/PoliApi.credentials.js"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/poli-digital/n8n-nodes-poli.git",
-  "author": {
-    "name": "PedroPi127"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/poli-digital/n8n-nodes-poli.git"
-  },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc && gulp build:icons",
-    "dev": "tsc --watch",
-    "format": "prettier nodes credentials --write",
-    "lint": "eslint -c .eslintrc.js nodes/ credentials/ package.json",
-    "lintfix": "eslint -c .eslintrc.js nodes/ credentials/ package.json --fix",
-   "prepublishOnly": "npm run build"
-
-  },
-  "files": [
-    "dist"
-  ],
-  "n8n": {
-    "n8nNodesApiVersion": 1,
-    "credentials": [
-      "dist/credentials/PoliApi.credentials.js"
-    ],
-    "nodes": [
-      "dist/nodes/Poli/Poli.node.js",
-      "dist/nodes/Poli/PoliTrigger.node.js",
-      "dist/nodes/Poli/ForwardContact.node.js"
-    ]
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/node": "^16.11.7",
-    "@typescript-eslint/eslint-plugin": "^5.29.0",
-    "@typescript-eslint/parser": "^5.29.0",
-    "eslint": "^8.17.0",
-    "eslint-plugin-n8n-nodes-base": "^1.0.0",
-    "gulp": "^4.0.2",
-    "gulp-copy": "^5.0.0",
-    "n8n-node-dev": "^0.107.0",
-    "prettier": "^2.6.2",
-    "typescript": "~4.7.4"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+  "nodes": [
+   "dist/nodes/Poli/Poli.node.js",
+   "dist/nodes/Poli/PoliTrigger.node.js",
+   "dist/nodes/Poli/ForwardContact.node.js"
+  ]
+ },
+ "devDependencies": {
+  "@types/node": "^16.11.7",
+  "@typescript-eslint/eslint-plugin": "^5.29.0",
+  "@typescript-eslint/parser": "^5.29.0",
+  "eslint": "^8.17.0",
+  "eslint-plugin-n8n-nodes-base": "^1.0.0",
+  "gulp": "^4.0.2",
+  "gulp-copy": "^5.0.0",
+  "n8n-node-dev": "^0.107.0",
+  "n8n-workflow": "^0.150.0",
+  "prettier": "^2.6.2",
+  "typescript": "~4.7.4"
+ },
+ "publishConfig": {
+  "access": "public"
+ }
 }
