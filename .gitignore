@@ -10,4 +10,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # Arquivos de IDE
-.vscode
+.vscode.npmrc
