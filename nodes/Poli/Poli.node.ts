@@ -7,22 +7,22 @@ import {
 } from 'n8n-workflow';
 
 // Importações dos nodes individuais
-import { ListContacts } from './ListContacts.node';
-import { CreateTag } from './CreateTag.node';
-import { CreateApp } from './CreateApp.node';
-import { ListApps } from './ListApps.node';
-import { ListChannels } from './ListChannels.node';
-import { ListTemplates } from './ListTemplates.node';
-import { ListTags } from './ListTags.node';
-import { ListWebhooks } from './ListWebhooks.node';
-import { CreateWebhook } from './CreateWebhook.node';
-import { SendMessageByContactId } from './SendMessageByContactId.node';
-import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.node';
-import { SendTemplateByContactId } from './SendTemplateByContactId.node';
-import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.node';
-import { AddTagToContact } from './AddTagToContact.node';
+import { ListContacts } from './ListContacts.operation';
+import { CreateTag } from './CreateTag.operation';
+import { CreateApp } from './CreateApp.operation';
+import { ListApps } from './ListApps.operation';
+import { ListChannels } from './ListChannels.operation';
+import { ListTemplates } from './ListTemplates.operation';
+import { ListTags } from './ListTags.operation';
+import { ListWebhooks } from './ListWebhooks.operation';
+import { CreateWebhook } from './CreateWebhook.operation';
+import { SendMessageByContactId } from './SendMessageByContactId.operation';
+import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
+import { SendTemplateByContactId } from './SendTemplateByContactId.operation';
+import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.operation';
+import { AddTagToContact } from './AddTagToContact.operation';
 import { ForwardContact } from './ForwardContact.operation';
-import { ListAccounts } from './ListAccounts.node'; 
+import { ListAccounts } from './ListAccounts.operation'; 
 
 export class Poli implements INodeType {
 	description: INodeTypeDescription;
