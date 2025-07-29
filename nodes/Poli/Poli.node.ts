@@ -21,7 +21,7 @@ import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.node';
 import { SendTemplateByContactId } from './SendTemplateByContactId.node';
 import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.node';
 import { AddTagToContact } from './AddTagToContact.node';
-import { ForwardContact } from './ForwardContact.node';
+import { ForwardContact } from './ForwardContact.operation';
 import { ListAccounts } from './ListAccounts.node'; 
 
 export class Poli implements INodeType {
