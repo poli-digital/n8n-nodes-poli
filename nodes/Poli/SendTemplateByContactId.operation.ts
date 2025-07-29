@@ -29,14 +29,14 @@ export class SendTemplateByContactId implements INodeType {
         required: true,
       },
       {
-        displayName: 'Account Channel UUID',
+        displayName: 'Account Channel ID',
         name: 'accountChannelUuid',
         type: 'string',
         default: '',
         required: true,
       },
       {
-        displayName: 'Template UUID',
+        displayName: 'Template ID',
         name: 'templateUuid',
         type: 'string',
         default: '',
