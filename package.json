@@ -1,6 +1,6 @@
 {
  "name": "@poli-digital/n8n-nodes-poli",
- "version": "0.1.9",
+ "version": "0.1.10",
  "description": "Nó para interagir com a API da Poli",
  "displayName": "Poli",
  "keywords": [
