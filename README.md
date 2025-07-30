@@ -1,4 +1,5 @@
 `@poli-digital/n8n-nodes-poli`
+
 Node oficial da Poli para integração com o n8n
 Automatize fluxos de trabalho com a API da Poli, integrando comunicação via WhatsApp, atendimento, marketing e CRM.
 
@@ -7,9 +8,13 @@ Automatize fluxos de trabalho com a API da Poli, integrando comunicação via Wh
 Este pacote oferece suporte a:
 
 📤 Envio de mensagens via WhatsApp (texto e templates)
+
 🔁 Redirecionamento de contatos para atendentes ou times
+
 📋 Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos
+
 ⚙️ Criação de aplicações e webhooks personalizados
+
 📡 Recebimento de eventos em tempo real com Poli Trigger
 
 🚀 `Instalação`
@@ -68,7 +73,7 @@ git push origin feature/sua-feature
 
 Abra um Pull Request
 
-📦 Publicação
+📦 `Publicação`
 Para publicar atualizações:
 
 npm version patch
@@ -77,6 +82,7 @@ npm publish
 💬 `Suporte`
 
 📧 Email: suporte@poli.digital
+
 🐛 Issues: Abrir issue no GitHub:
 https://github.com/PedroPoli127/n8n-nodes-poli/issues
 
