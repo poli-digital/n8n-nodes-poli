@@ -5,12 +5,12 @@ Automatize fluxos de trabalho com a API da Poli, integrando comunicação via Wh
 ✨ `Funcionalidades`
 
 Este pacote oferece suporte a:
+
 📤 Envio de mensagens via WhatsApp (texto e templates)
 🔁 Redirecionamento de contatos para atendentes ou times
 📋 Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos
 ⚙️ Criação de aplicações e webhooks personalizados
 📡 Recebimento de eventos em tempo real com Poli Trigger
-Ideal para conectar sua conta WhatsApp Business (WABA) ao n8n com foco em automações de atendimento, marketing e CRM.
 
 🚀 `Instalação`
 
@@ -52,15 +52,23 @@ Para detalhes técnicos, acesse a https://panel.userguiding.com/knowledge-base/a
 🤝 `Contribuindo`
 
 Contribuições são bem-vindas!
+Siga os passos abaixo:
+
 Faça um fork do repositório:
 https://github.com/PedroPoli127/n8n-nodes-poli/fork
 
-Crie uma branch: git checkout -b feature/sua-feature
-      3.  Commit das alterações: git commit -m "feat: adiciona nova funcionalidade"
-      4.  Envie sua branch: git push origin feature/sua-feature
-      5.  Abra um Pull Request 
+Crie uma branch:
+git checkout -b feature/sua-feature
 
-📦 `Publicação`
+Commit das alterações:
+git commit -m "feat: adiciona nova funcionalidade"
+
+Envie sua branch:
+git push origin feature/sua-feature
+
+Abra um Pull Request
+
+📦 Publicação
 Para publicar atualizações:
 
 npm version patch
@@ -69,7 +77,7 @@ npm publish
 💬 `Suporte`
 
 📧 Email: suporte@poli.digital
-🐛 Issues: Abrir issue no GitHub: https://github.com/PedroPoli127/n8n-nodes-poli/issues
-
+🐛 Issues: Abrir issue no GitHub:
+https://github.com/PedroPoli127/n8n-nodes-poli/issues
 
 
