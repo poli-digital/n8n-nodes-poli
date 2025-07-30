@@ -1,103 +1,75 @@
-# @poli-digital/n8n-nodes-poli
+`@poli-digital/n8n-nodes-poli`
+Node oficial da Poli para integração com o n8n
+Automatize fluxos de trabalho com a API da Poli, integrando comunicação via WhatsApp, atendimento, marketing e CRM.
 
-Node oficial da Poli para integração com o n8n (https://n8n.io)
+✨ `Funcionalidades`
 
-Este pacote permite automatizar fluxos de trabalho usando a API da Poli(https://poli.digital), incluindo:
+Este pacote oferece suporte a:
+📤 Envio de mensagens via WhatsApp (texto e templates)
+🔁 Redirecionamento de contatos para atendentes ou times
+📋 Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos
+⚙️ Criação de aplicações e webhooks personalizados
+📡 Recebimento de eventos em tempo real com Poli Trigger
+Ideal para conectar sua conta WhatsApp Business (WABA) ao n8n com foco em automações de atendimento, marketing e CRM.
 
-- Envio de mensagens via WhatsApp (texto, mídia e templates)
-- Redirecionamento de contatos para atendentes
-- Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos
-- Recebimento de eventos em tempo real com webhooks
-- Criação de aplicações e webhooks na Poli
-
-> Ideal para conectar sua conta WhatsApp Business (WABA) com n8n em operações de CRM, marketing, atendimento e automações diversas.
-
-
-🚀 Como Instalar
+🚀 `Instalação`
 
 Via Community Nodes (Recomendado)
+Vá em Settings > Community Nodes no n8n
 
-1. Vá para **Settings > Community Nodes** no n8n
-2. Clique em **Install**
-3. No campo de nome do pacote, digite:
+Clique em Install
 
-   ```
-   @poli-digital/n8n-nodes-poli
-   ```
+No campo Enter npm package name, insira: @poli-digital/n8n-nodes-poli
 
-4. Aceite o aviso:  
-   *"I understand the risks of installing unverified code from a public source"*
-5. Clique em **Install**
+Marque a opção: I understand the risks of installing unverified code from a public source
 
-Instalação Manual:
+Clique em Install
 
-No diretório raiz do seu n8n, execute:
+Instalação Manual
+Execute no diretório raiz do n8n: npm install @poli-digital/n8n-nodes-poli
 
-```bash
-npm install @poli-digital/n8n-nodes-poli
+🔐 `Configuração de Credenciais`
 
+Vá até o menu Credentials
 
-🔐 Configuração de Credenciais
+Clique em Add Credential
 
-1. Vá para **Credentials** no n8n
-2. Clique em **Add Credential**
-3. Procure por **Poli API**
-4. Preencha os campos:
+Procure por Poli API
 
-   - **API Key**
+Preencha o campo:
 
- 📘 Funcionalidades Suportadas
+API Key 
 
-Este pacote permite:
+⚙️`Como Usar`
 
-- ✅ Enviar mensagens WhatsApp (texto, mídia ou templates)
-- 📇 Listar contatos, canais, templates, etiquetas, apps e webhooks
-- 🧠 Criar aplicações e webhooks personalizados
-- 🔁 Encaminhar contatos para usuários ou time
-- 🛎 Receber eventos em tempo real com o Poli Trigger
+Após instalar:
+Use o nó Poli para ações como envio de mensagens,listagens,aplicações, etc
 
-Acesse a documentação oficial da API Poli(https://developers.poli.digital/) para exemplos completos.
+Use o Poli Trigger para receber eventos em tempo real
 
+Para detalhes técnicos, acesse a https://panel.userguiding.com/knowledge-base/articles/detail/14373
 
- 🤝 Contribuindo
+🤝 `Contribuindo`
 
-Contribuições são muito bem-vindas!
+Contribuições são bem-vindas!
+Faça um fork do repositório:
+https://github.com/PedroPoli127/n8n-nodes-poli/fork
 
-1. Faça um fork:  
-   https://github.com/PedroPoli127/n8n-nodes-poli/fork
+Crie uma branch: git checkout -b feature/sua-feature
+      3.  Commit das alterações: git commit -m "feat: adiciona nova funcionalidade"
+      4.  Envie sua branch: git push origin feature/sua-feature
+      5.  Abra um Pull Request 
 
-2. Crie sua branch:
+📦 `Publicação`
+Para publicar atualizações:
 
-   ```bash
-   git checkout -b feature/nome-da-sua-feature
-
-
-3. Commit das alterações:
-
-   ```bash
-   git commit -m "feat: adiciona nova funcionalidade"
-  
-
-4. Envie sua branch:
-
-   ```bash
-   git push origin feature/nome-da-sua-feature
-   ```
-
-5. Abra um Pull Request 🎉
-
-
-
-📦 Publicando o Pacote (npm)
-
-Se quiser atualizar o `README.md` ou qualquer funcionalidade:
-
-```bash
 npm version patch
 npm publish
 
+💬 `Suporte`
 
- 💬 Suporte:
+📧 Email: suporte@poli.digital
+🐛 Issues: Abrir issue no GitHub: https://github.com/PedroPoli127/n8n-nodes-poli/issues
 
-📧 Email: pedro.melo@poli.digital
-🐛 Ou abra uma issue (https://github.com/PedroPoli127/n8n-nodes-poli/issues)
+
+
