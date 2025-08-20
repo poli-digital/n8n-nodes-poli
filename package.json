@@ -58,5 +58,9 @@
  },
  "publishConfig": {
   "access": "public"
+ },
+ "dependencies": {
+  "n8n-nodes-scraping-dog": "^0.3.8",
+  "turndown": "^7.2.0"
  }
 }
