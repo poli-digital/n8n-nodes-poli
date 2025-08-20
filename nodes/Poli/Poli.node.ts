@@ -22,7 +22,8 @@ import { SendTemplateByContactId } from './SendTemplateByContactId.operation';
 import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.operation';
 import { AddTagToContact } from './AddTagToContact.operation';
 import { ForwardContact } from './ForwardContact.operation';
-import { ListAccounts } from './ListAccounts.operation'; 
+import { ListAccounts } from './ListAccounts.operation';
+import { CreateContact } from './CreateContact.operation';
 
 export class Poli implements INodeType {
 	description: INodeTypeDescription;
@@ -31,6 +32,7 @@ export class Poli implements INodeType {
 		const nodes = {
 			contact: {
 				list: new ListContacts(),
+				create: new CreateContact(), // 🔥 Novo método
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
 			},
@@ -59,7 +61,7 @@ export class Poli implements INodeType {
 				create: new CreateWebhook(),
 			},
 			account: {
-				list: new ListAccounts(), 
+				list: new ListAccounts(),
 			},
 		};
 
@@ -78,8 +80,8 @@ export class Poli implements INodeType {
 						{ name: 'Tag', value: 'tag' },
 						{ name: 'Template', value: 'template' },
 						{ name: 'Webhook', value: 'webhook' },
-						{ name: 'Account', value: 'account' }, 
-          ],
+						{ name: 'Account', value: 'account' },
+					],
 					default: 'contact',
 				},
 				{
@@ -90,6 +92,7 @@ export class Poli implements INodeType {
 					displayOptions: { show: { resource: ['contact'] } },
 					options: [
 						{ name: 'List', value: 'list', description: 'Listar todos os contatos' },
+						{ name: 'Create', value: 'create', description: 'Criar novo contato' }, // 🔥 Nova opção
 						{ name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
 						{ name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
 					],
@@ -169,9 +172,7 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['account'] } },
-					options: [
-						{ name: 'List', value: 'list', description: 'Listar contas da organização' },
-					],
+					options: [{ name: 'List', value: 'list', description: 'Listar contas da organização' }],
 					default: 'list',
 				},
 			];
@@ -266,6 +267,7 @@ export class Poli implements INodeType {
 		const nodeMap: Record<string, Record<string, any>> = {
 			contact: {
 				list: new ListContacts(),
+				create: new CreateContact(), // 🔥 Novo método no execute
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
 			},
@@ -294,7 +296,7 @@ export class Poli implements INodeType {
 				create: new CreateWebhook(),
 			},
 			account: {
-				list: new ListAccounts(), 
+				list: new ListAccounts(),
 			},
 		};
 
