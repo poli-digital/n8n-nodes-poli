@@ -3,7 +3,7 @@ import { NodeApiError } from 'n8n-workflow';
 
 export async function apiRequest(
 	this: IExecuteFunctions,
-	method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
 	endpoint: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},

@@ -1,4 +1,12 @@
-# @poli-digital/n8n-nodes-poli
+# @poli-dig- 📤 **Envio de mensagens via WhatsApp** (texto e templates)  
+- 🔁 **Redirecionamento de contatos** para atendentes ou times  
+- 📋 **Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos**  
+- ⚙️ **Criação de aplicações e webhooks personalizados**  
+- 👤 **Obtenção de informações do usuário autenticado (Get Me)**
+- 👥 **Listagem de usuários de contas específicas (List Users)**
+- 🏢 **Listagem de times de contas específicas (List Teams)**
+- ✏️ **Atualização de contatos (Update Contact)**
+- 📡 **Recebimento de eventos em tempo real com Poli Trigger**8n-nodes-poli
 
 Node oficial da Poli para integração com o n8n.  
 Automatize fluxos de trabalho com a API da Poli, integrando comunicação via WhatsApp, atendimento, marketing e CRM.
@@ -13,7 +21,8 @@ Este pacote oferece suporte a:
 - 🔁 **Redirecionamento de contatos** para atendentes ou times  
 - 📋 **Listagem de contatos, canais, etiquetas, templates, webhooks e aplicativos**  
 - ⚙️ **Criação de aplicações e webhooks personalizados**  
-- 📡 **Recebimento de eventos em tempo real com Poli Trigger**
+- � **Obtenção de informações do usuário autenticado (Get Me)**
+- �📡 **Recebimento de eventos em tempo real com Poli Trigger**
 
 ---
 
@@ -83,7 +92,7 @@ Siga os passos abaixo:
 5. Abra um **Pull Request**
 
 ---
-
+n
 ## 📦 Publicação
 
 Para publicar atualizações:
