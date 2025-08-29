@@ -18,12 +18,16 @@ import { ListWebhooks } from './ListWebhooks.operation';
 import { CreateWebhook } from './CreateWebhook.operation';
 import { SendMessageByContactId } from './SendMessageByContactId.operation';
 import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
-import { SendTemplateByContactId } from './SendTemplateByContactId.operation';
+import { SendTemplateByContactId } from './SendTemplateByContactId.node';
 import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.operation';
 import { AddTagToContact } from './AddTagToContact.operation';
 import { ForwardContact } from './ForwardContact.operation';
 import { ListAccounts } from './ListAccounts.operation';
-import { CreateContact } from './CreateContact.operation';
+import { GetMe } from './GetMe.operation';
+import { ListUsers } from './ListUsers.operation';
+import { UpdateContact } from './UpdateContact.operation';
+import { ListTeams } from './ListTeams.operation';
+import { GetAccountChannel } from './GetAccountChannel.operation'; 
 
 export class Poli implements INodeType {
 	description: INodeTypeDescription;
@@ -32,9 +36,9 @@ export class Poli implements INodeType {
 		const nodes = {
 			contact: {
 				list: new ListContacts(),
-				create: new CreateContact(), // 🔥 Novo método
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
+				update: new UpdateContact(),
 			},
 			app: {
 				list: new ListApps(),
@@ -52,6 +56,7 @@ export class Poli implements INodeType {
 			},
 			channel: {
 				list: new ListChannels(),
+				get: new GetAccountChannel(),
 			},
 			template: {
 				list: new ListTemplates(),
@@ -62,6 +67,11 @@ export class Poli implements INodeType {
 			},
 			account: {
 				list: new ListAccounts(),
+				listUsers: new ListUsers(),
+				listTeams: new ListTeams(),
+			},
+			auth: {
+				getMe: new GetMe(),
 			},
 		};
 
@@ -81,7 +91,8 @@ export class Poli implements INodeType {
 						{ name: 'Template', value: 'template' },
 						{ name: 'Webhook', value: 'webhook' },
 						{ name: 'Account', value: 'account' },
-					],
+						{ name: 'Auth', value: 'auth' },
+          ],
 					default: 'contact',
 				},
 				{
@@ -92,9 +103,9 @@ export class Poli implements INodeType {
 					displayOptions: { show: { resource: ['contact'] } },
 					options: [
 						{ name: 'List', value: 'list', description: 'Listar todos os contatos' },
-						{ name: 'Create', value: 'create', description: 'Criar novo contato' }, // 🔥 Nova opção
 						{ name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
 						{ name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
+						{ name: 'Update', value: 'update', description: 'Atualizar um contato' },
 					],
 					default: 'list',
 				},
@@ -142,7 +153,10 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['channel'] } },
-					options: [{ name: 'List', value: 'list', description: 'Listar canais' }],
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar canais' },
+						{ name: 'Get', value: 'get', description: 'Obter canal da conta específico' },
+					],
 					default: 'list',
 				},
 				{
@@ -172,8 +186,23 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['account'] } },
-					options: [{ name: 'List', value: 'list', description: 'Listar contas da organização' }],
+					options: [
+						{ name: 'List', value: 'list', description: 'Listar contas da organização' },
+						{ name: 'List Users', value: 'listUsers', description: 'Listar usuários de uma conta específica' },
+						{ name: 'List Teams', value: 'listTeams', description: 'Listar times de uma conta específica' },
+					],
 					default: 'list',
+				},
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['auth'] } },
+					options: [
+						{ name: 'Get Me', value: 'getMe', description: 'Obter informações do usuário autenticado' },
+					],
+					default: 'getMe',
 				},
 			];
 
@@ -267,9 +296,9 @@ export class Poli implements INodeType {
 		const nodeMap: Record<string, Record<string, any>> = {
 			contact: {
 				list: new ListContacts(),
-				create: new CreateContact(), // 🔥 Novo método no execute
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
+				update: new UpdateContact(),
 			},
 			app: {
 				list: new ListApps(),
@@ -287,6 +316,7 @@ export class Poli implements INodeType {
 			},
 			channel: {
 				list: new ListChannels(),
+				get: new GetAccountChannel(),
 			},
 			template: {
 				list: new ListTemplates(),
@@ -297,6 +327,11 @@ export class Poli implements INodeType {
 			},
 			account: {
 				list: new ListAccounts(),
+				listUsers: new ListUsers(),
+				listTeams: new ListTeams(),
+			},
+			auth: {
+				getMe: new GetMe(),
 			},
 		};
 
