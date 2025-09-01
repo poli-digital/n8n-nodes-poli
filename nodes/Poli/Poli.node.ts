@@ -2,80 +2,90 @@ import {
 	IExecuteFunctions,
 	INodeType,
 	INodeTypeDescription,
-	INodePropertyOptions,
 	INodeProperties,
 } from 'n8n-workflow';
 
-// Importações dos nodes individuais
+// Importações dos nodes existentes
 import { ListContacts } from './ListContacts.operation';
-import { CreateTag } from './CreateTag.operation';
-import { CreateApp } from './CreateApp.operation';
-import { ListApps } from './ListApps.operation';
-import { ListChannels } from './ListChannels.operation';
-import { ListTemplates } from './ListTemplates.operation';
-import { ListTags } from './ListTags.operation';
-import { ListWebhooks } from './ListWebhooks.operation';
-import { CreateWebhook } from './CreateWebhook.operation';
-import { SendMessageByContactId } from './SendMessageByContactId.operation';
-import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
-import { SendTemplateByContactId } from './SendTemplateByContactId.node';
-import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.operation';
+import { CreateContact } from './CreateContact.operation';
+import { UpdateContact } from './UpdateContact.operation';
 import { AddTagToContact } from './AddTagToContact.operation';
 import { ForwardContact } from './ForwardContact.operation';
+
+import { ListApps } from './ListApps.operation';
+import { CreateApp } from './CreateApp.operation';
+import { GetMe } from './GetMe.operation'; // será usado como Get App Data
+
 import { ListAccounts } from './ListAccounts.operation';
-import { GetMe } from './GetMe.operation';
+
+import { ListChannels } from './ListChannels.operation';
+
+import { SendMessageByContactId } from './SendMessageByContactId.operation';
+import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
+
+import { ListTemplates } from './ListTemplates.operation';
+import { SendTemplateByContactId } from './SendTemplateByContactId.node';
+import { SendTemplateByPhoneNumber } from './SendTemplateByPhoneNumber.operation';
+
+import { ListTags } from './ListTags.operation';
+import { CreateTag } from './CreateTag.operation';
+
 import { ListUsers } from './ListUsers.operation';
-import { UpdateContact } from './UpdateContact.operation';
+
 import { ListTeams } from './ListTeams.operation';
-import { GetAccountChannel } from './GetAccountChannel.operation'; 
+
+import { ListWebhooks } from './ListWebhooks.operation';
+import { CreateWebhook } from './CreateWebhook.operation';
 
 export class Poli implements INodeType {
 	description: INodeTypeDescription;
 
 	constructor() {
 		const nodes = {
-			contact: {
-				list: new ListContacts(),
-				addTag: new AddTagToContact(),
-				forward: new ForwardContact(),
-				update: new UpdateContact(),
-			},
 			app: {
 				list: new ListApps(),
 				create: new CreateApp(),
+				getData: new GetMe(), // Get App Data
+			},
+			account: {
+				list: new ListAccounts(),
+			},
+			channel: {
+				list: new ListChannels(),
+			},
+			message: {
+				sendByContactId: new SendMessageByContactId(),
+				sendByPhone: new SendMessageByPhoneNumber(),
+			},
+			template: {
+				list: new ListTemplates(),
+				sendByContactId: new SendTemplateByContactId(),
+				sendByPhone: new SendTemplateByPhoneNumber(),
+			},
+			contact: {
+				list: new ListContacts(),
+				create: new CreateContact(),
+				update: new UpdateContact(),
+				addTag: new AddTagToContact(),
+				forward: new ForwardContact(),
 			},
 			tag: {
 				list: new ListTags(),
 				create: new CreateTag(),
 			},
-			message: {
-				sendByContactId: new SendMessageByContactId(),
-				sendByPhone: new SendMessageByPhoneNumber(),
-				sendTemplateByContactId: new SendTemplateByContactId(),
-				sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+			user: {
+				list: new ListUsers(),
 			},
-			channel: {
-				list: new ListChannels(),
-				get: new GetAccountChannel(),
-			},
-			template: {
-				list: new ListTemplates(),
+			team: {
+				list: new ListTeams(),
 			},
 			webhook: {
 				list: new ListWebhooks(),
 				create: new CreateWebhook(),
 			},
-			account: {
-				list: new ListAccounts(),
-				listUsers: new ListUsers(),
-				listTeams: new ListTeams(),
-			},
-			auth: {
-				getMe: new GetMe(),
-			},
 		};
 
-		const collectProperties = () => {
+		const collectProperties = (): INodeProperties[] => {
 			const baseProperties: INodeProperties[] = [
 				{
 					displayName: 'Resource',
@@ -84,31 +94,19 @@ export class Poli implements INodeType {
 					noDataExpression: true,
 					options: [
 						{ name: 'App', value: 'app' },
-						{ name: 'Contact', value: 'contact' },
+						{ name: 'Account', value: 'account' },
 						{ name: 'Channel', value: 'channel' },
 						{ name: 'Message', value: 'message' },
-						{ name: 'Tag', value: 'tag' },
 						{ name: 'Template', value: 'template' },
+						{ name: 'Contact', value: 'contact' },
+						{ name: 'Tag', value: 'tag' },
+						{ name: 'User', value: 'user' },
+						{ name: 'Team', value: 'team' },
 						{ name: 'Webhook', value: 'webhook' },
-						{ name: 'Account', value: 'account' },
-						{ name: 'Auth', value: 'auth' },
-          ],
+					],
 					default: 'contact',
 				},
-				{
-					displayName: 'Operation',
-					name: 'operation',
-					type: 'options',
-					noDataExpression: true,
-					displayOptions: { show: { resource: ['contact'] } },
-					options: [
-						{ name: 'List', value: 'list', description: 'Listar todos os contatos' },
-						{ name: 'Add Tag', value: 'addTag', description: 'Adicionar tag a um contato' },
-						{ name: 'Forward', value: 'forward', description: 'Encaminhar contato' },
-						{ name: 'Update', value: 'update', description: 'Atualizar um contato' },
-					],
-					default: 'list',
-				},
+				// APP ACTIONS
 				{
 					displayName: 'Operation',
 					name: 'operation',
@@ -116,23 +114,33 @@ export class Poli implements INodeType {
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['app'] } },
 					options: [
-						{ name: 'List', value: 'list', description: 'Listar aplicações' },
-						{ name: 'Create', value: 'create', description: 'Criar nova aplicação' },
+						{ name: 'List Apps', value: 'list', action: 'List Apps' },
+						{ name: 'Create App', value: 'create', action: 'Create App' },
+						{ name: 'Get App Data', value: 'getData', action: 'Get App Data' },
 					],
 					default: 'list',
 				},
+				// ACCOUNT ACTIONS
 				{
 					displayName: 'Operation',
 					name: 'operation',
 					type: 'options',
 					noDataExpression: true,
-					displayOptions: { show: { resource: ['tag'] } },
-					options: [
-						{ name: 'List', value: 'list', description: 'Listar tags' },
-						{ name: 'Create', value: 'create', description: 'Criar nova tag' },
-					],
+					displayOptions: { show: { resource: ['account'] } },
+					options: [{ name: 'List Accounts', value: 'list', action: 'List Accounts' }],
 					default: 'list',
 				},
+				// CHANNEL ACTIONS
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['channel'] } },
+					options: [{ name: 'List Channels', value: 'list', action: 'List Channels' }],
+					default: 'list',
+				},
+				// MESSAGE ACTIONS
 				{
 					displayName: 'Operation',
 					name: 'operation',
@@ -140,34 +148,75 @@ export class Poli implements INodeType {
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['message'] } },
 					options: [
-						{ name: 'Send By Contact ID', value: 'sendByContactId', description: 'Enviar mensagem por ID do contato' },
-						{ name: 'Send By Phone', value: 'sendByPhone', description: 'Enviar mensagem por número de telefone' },
-						{ name: 'Send Template By Contact ID', value: 'sendTemplateByContactId', description: 'Enviar template por ID do contato' },
-						{ name: 'Send Template By Phone Number', value: 'sendTemplateByPhoneNumber', description: 'Enviar template por número de telefone' },
+						{ name: 'Send Message By Contact ID', value: 'sendByContactId', action: 'Send Message By Contact ID' },
+						{ name: 'Send Message By Phone', value: 'sendByPhone', action: 'Send Message By Phone' },
 					],
 					default: 'sendByContactId',
 				},
-				{
-					displayName: 'Operation',
-					name: 'operation',
-					type: 'options',
-					noDataExpression: true,
-					displayOptions: { show: { resource: ['channel'] } },
-					options: [
-						{ name: 'List', value: 'list', description: 'Listar canais' },
-						{ name: 'Get', value: 'get', description: 'Obter canal da conta específico' },
-					],
-					default: 'list',
-				},
+				// TEMPLATE ACTIONS
 				{
 					displayName: 'Operation',
 					name: 'operation',
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['template'] } },
-					options: [{ name: 'List', value: 'list', description: 'Listar templates' }],
+					options: [
+						{ name: 'List Templates', value: 'list', action: 'List Templates' },
+						{ name: 'Send Template Message By Contact ID', value: 'sendByContactId', action: 'Send Template Message By Contact ID' },
+						{ name: 'Send Template Message By Phone Number', value: 'sendByPhone', action: 'Send Template Message By Phone Number' },
+					],
 					default: 'list',
 				},
+				// CONTACT ACTIONS
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['contact'] } },
+					options: [
+						{ name: 'List and Search Contacts', value: 'list', action: 'List and Search Contacts' },
+						{ name: 'Create Contact', value: 'create', action: 'Create Contact' },
+						{ name: 'Update Contact', value: 'update', action: 'Update Contact' },
+						{ name: 'Add Tag to Contact', value: 'addTag', action: 'Add Tag to Contact' },
+						{ name: 'Forward Contact', value: 'forward', action: 'Forward Contact' },
+					],
+					default: 'list',
+				},
+				// TAG ACTIONS
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['tag'] } },
+					options: [
+						{ name: 'List Tags', value: 'list', action: 'List Tags' },
+						{ name: 'Create Tags', value: 'create', action: 'Create Tags' },
+					],
+					default: 'list',
+				},
+				// USER ACTIONS
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['user'] } },
+					options: [{ name: 'List and Search Users', value: 'list', action: 'List and Search Users' }],
+					default: 'list',
+				},
+				// TEAM ACTIONS
+				{
+					displayName: 'Operation',
+					name: 'operation',
+					type: 'options',
+					noDataExpression: true,
+					displayOptions: { show: { resource: ['team'] } },
+					options: [{ name: 'List Teams', value: 'list', action: 'List Teams' }],
+					default: 'list',
+				},
+				// WEBHOOK ACTIONS
 				{
 					displayName: 'Operation',
 					name: 'operation',
@@ -175,34 +224,10 @@ export class Poli implements INodeType {
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['webhook'] } },
 					options: [
-						{ name: 'List', value: 'list', description: 'Listar webhooks' },
-						{ name: 'Create', value: 'create', description: 'Criar webhook' },
+						{ name: 'List Webhooks', value: 'list', action: 'List Webhooks' },
+						{ name: 'Create Webhook', value: 'create', action: 'Create Webhook' },
 					],
 					default: 'list',
-				},
-				{
-					displayName: 'Operation',
-					name: 'operation',
-					type: 'options',
-					noDataExpression: true,
-					displayOptions: { show: { resource: ['account'] } },
-					options: [
-						{ name: 'List', value: 'list', description: 'Listar contas da organização' },
-						{ name: 'List Users', value: 'listUsers', description: 'Listar usuários de uma conta específica' },
-						{ name: 'List Teams', value: 'listTeams', description: 'Listar times de uma conta específica' },
-					],
-					default: 'list',
-				},
-				{
-					displayName: 'Operation',
-					name: 'operation',
-					type: 'options',
-					noDataExpression: true,
-					displayOptions: { show: { resource: ['auth'] } },
-					options: [
-						{ name: 'Get Me', value: 'getMe', description: 'Obter informações do usuário autenticado' },
-					],
-					default: 'getMe',
 				},
 			];
 
@@ -210,62 +235,23 @@ export class Poli implements INodeType {
 
 			Object.entries(nodes).forEach(([resource, operations]) => {
 				Object.entries(operations).forEach(([operation, nodeInstance]) => {
-					const nodeProperties = nodeInstance.description.properties || [];
+					const nodeProperties = nodeInstance.description?.properties || [];
 
 					const specificProperties = nodeProperties.filter(
 						(prop) => prop.name !== 'resource' && prop.name !== 'operation',
 					);
 
 					specificProperties.forEach((prop) => {
-						let modifiedProp: INodeProperties;
-
-						if (resource === 'contact' && operation === 'forward') {
-							if (prop.name === 'userUuid') {
-								modifiedProp = {
-									...prop,
-									displayOptions: {
-										show: {
-											resource: ['contact'],
-											operation: ['forward'],
-											forwardType: ['user'],
-										},
-									},
-								};
-							} else if (prop.name === 'teamUuid') {
-								modifiedProp = {
-									...prop,
-									displayOptions: {
-										show: {
-											resource: ['contact'],
-											operation: ['forward'],
-											forwardType: ['team'],
-										},
-									},
-								};
-							} else {
-								modifiedProp = {
-									...prop,
-									displayOptions: {
-										show: {
-											resource: [resource],
-											operation: [operation],
-										},
-									},
-								};
-							}
-						} else {
-							modifiedProp = {
-								...prop,
-								displayOptions: {
-									show: {
-										resource: [resource],
-										operation: [operation],
-										...(prop.displayOptions?.show || {}),
-									},
+						const modifiedProp: INodeProperties = {
+							...prop,
+							displayOptions: {
+								show: {
+									resource: [resource],
+									operation: [operation],
+									...(prop.displayOptions?.show || {}),
 								},
-							};
-						}
-
+							},
+						};
 						allProperties.push(modifiedProp);
 					});
 				});
@@ -294,44 +280,46 @@ export class Poli implements INodeType {
 		const operation = this.getNodeParameter('operation', 0) as string;
 
 		const nodeMap: Record<string, Record<string, any>> = {
-			contact: {
-				list: new ListContacts(),
-				addTag: new AddTagToContact(),
-				forward: new ForwardContact(),
-				update: new UpdateContact(),
-			},
 			app: {
 				list: new ListApps(),
 				create: new CreateApp(),
+				getData: new GetMe(), // Get App Data
+			},
+			account: {
+				list: new ListAccounts(),
+			},
+			channel: {
+				list: new ListChannels(),
+			},
+			message: {
+				sendByContactId: new SendMessageByContactId(),
+				sendByPhone: new SendMessageByPhoneNumber(),
+			},
+			template: {
+				list: new ListTemplates(),
+				sendByContactId: new SendTemplateByContactId(),
+				sendByPhone: new SendTemplateByPhoneNumber(),
+			},
+			contact: {
+				list: new ListContacts(),
+				create: new CreateContact(),
+				update: new UpdateContact(),
+				addTag: new AddTagToContact(),
+				forward: new ForwardContact(),
 			},
 			tag: {
 				list: new ListTags(),
 				create: new CreateTag(),
 			},
-			message: {
-				sendByContactId: new SendMessageByContactId(),
-				sendByPhone: new SendMessageByPhoneNumber(),
-				sendTemplateByContactId: new SendTemplateByContactId(),
-				sendTemplateByPhoneNumber: new SendTemplateByPhoneNumber(),
+			user: {
+				list: new ListUsers(),
 			},
-			channel: {
-				list: new ListChannels(),
-				get: new GetAccountChannel(),
-			},
-			template: {
-				list: new ListTemplates(),
+			team: {
+				list: new ListTeams(),
 			},
 			webhook: {
 				list: new ListWebhooks(),
 				create: new CreateWebhook(),
-			},
-			account: {
-				list: new ListAccounts(),
-				listUsers: new ListUsers(),
-				listTeams: new ListTeams(),
-			},
-			auth: {
-				getMe: new GetMe(),
 			},
 		};
 
