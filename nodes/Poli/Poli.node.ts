@@ -23,6 +23,7 @@ import { GetChannel } from './GetChannel.operation';
 
 import { SendMessageByContactId } from './SendMessageByContactId.operation';
 import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
+import { ListMessagesFromContact } from './ListMessagesFromContact.operation';
 
 import { ListTemplates } from './ListTemplates.operation';
 import { SendTemplateByContactId } from './SendTemplateByContactId.node';
@@ -70,6 +71,7 @@ export class Poli implements INodeType {
 				update: new UpdateContact(),
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
+				listMessages: new ListMessagesFromContact(),
 			},
 			tag: {
 				list: new ListTags(),
@@ -185,6 +187,7 @@ export class Poli implements INodeType {
 						{ name: 'Update Contact', value: 'update', action: 'Update Contact' },
 						{ name: 'Add Tag to Contact', value: 'addTag', action: 'Add Tag to Contact' },
 						{ name: 'Forward Contact', value: 'forward', action: 'Forward Contact' },
+						{ name: 'List Messages from Contact ID', value: 'listMessages', action: 'List Messages from Contact ID' },
 					],
 					default: 'list',
 				},
@@ -312,6 +315,7 @@ export class Poli implements INodeType {
 				update: new UpdateContact(),
 				addTag: new AddTagToContact(),
 				forward: new ForwardContact(),
+				listMessages: new ListMessagesFromContact(),
 			},
 			tag: {
 				list: new ListTags(),
