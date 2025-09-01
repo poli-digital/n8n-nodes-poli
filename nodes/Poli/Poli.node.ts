@@ -19,6 +19,7 @@ import { GetMe } from './GetMe.operation'; // será usado como Get App Data
 import { ListAccounts } from './ListAccounts.operation';
 
 import { ListChannels } from './ListChannels.operation';
+import { GetChannel } from './GetChannel.operation';
 
 import { SendMessageByContactId } from './SendMessageByContactId.operation';
 import { SendMessageByPhoneNumber } from './SendMessageByPhoneNumber.operation';
@@ -52,6 +53,7 @@ export class Poli implements INodeType {
 			},
 			channel: {
 				list: new ListChannels(),
+				get: new GetChannel(),
 			},
 			message: {
 				sendByContactId: new SendMessageByContactId(),
@@ -137,7 +139,10 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['channel'] } },
-					options: [{ name: 'List Channels', value: 'list', action: 'List Channels' }],
+					options: [
+						{ name: 'List Channels', value: 'list', action: 'List Channels' },
+						{ name: 'Get Channel', value: 'get', action: 'Get Channel' },
+					],
 					default: 'list',
 				},
 				// MESSAGE ACTIONS
@@ -290,6 +295,7 @@ export class Poli implements INodeType {
 			},
 			channel: {
 				list: new ListChannels(),
+				get: new GetChannel(),
 			},
 			message: {
 				sendByContactId: new SendMessageByContactId(),
