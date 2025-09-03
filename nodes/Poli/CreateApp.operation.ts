@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class CreateApp implements INodeType {
   description: INodeTypeDescription = {
@@ -90,14 +91,14 @@ export class CreateApp implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = this.getNodeParameter('accountId', i);
-        const visibility = this.getNodeParameter('visibility', i) as string;
-        const appName = this.getNodeParameter('appName', i) as string;
-        const description = this.getNodeParameter('description', i) as string;
-        const responsible = this.getNodeParameter('responsible', i) as string;
-        const phone = this.getNodeParameter('phone', i) as string;
-        const email = this.getNodeParameter('email', i) as string;
-        const pictureFileId = this.getNodeParameter('pictureFileId', i, '') as string;
+        const accountId = getParameterSafe(this, 'accountId', i, '', true);
+        const visibility = getParameterSafe(this, 'visibility', i, '') as string;
+        const appName = getParameterSafe(this, 'appName', i, '') as string;
+        const description = getParameterSafe(this, 'description', i, '') as string;
+        const responsible = getParameterSafe(this, 'responsible', i, '') as string;
+        const phone = getParameterSafe(this, 'phone', i, '', true) as string;
+        const email = getParameterSafe(this, 'email', i, '') as string;
+        const pictureFileId = getParameterSafe(this, 'pictureFileId', i, '') as string;
 
         const body = {
           visibility: visibility.toUpperCase(),

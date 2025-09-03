@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export const listContactsFields: INodeProperties[] = [
 	{
@@ -85,8 +86,8 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountId = this.getNodeParameter('accountId', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const accountId = getParameterSafe(this, 'accountId', i, '', true);
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;

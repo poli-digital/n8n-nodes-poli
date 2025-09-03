@@ -1,6 +1,7 @@
 import { IExecuteFunctions } from 'n8n-workflow';
 import { IDataObject } from 'n8n-workflow';
 import { BaseResource } from './base';
+import { getParameterSafe } from '../utils/parameterUtils';
 
 export const messageDescription = {
   displayName: 'Message',
@@ -46,18 +47,18 @@ export const messageDescription = {
 export class MessageResource extends BaseResource {
   static async send(executeFunctions: IExecuteFunctions, index: number): Promise<IDataObject> {
     const body = {
-      channelId: executeFunctions.getNodeParameter('channelId', index) as string,
-      recipientId: executeFunctions.getNodeParameter('recipientId', index) as string,
-      content: executeFunctions.getNodeParameter('content', index) as string,
-      type: executeFunctions.getNodeParameter('messageType', index) as string,
+      channelId: getParameterSafe(executeFunctions, 'channelId', index, '', true),
+      recipientId: getParameterSafe(executeFunctions, 'recipientId', index, '', true),
+      content: getParameterSafe(executeFunctions, 'content', index, '', true),
+      type: getParameterSafe(executeFunctions, 'messageType', index, 'text', true),
     };
 
     return await this.makeRequest(executeFunctions, 'POST', '/messages', body, index);
   }
 
   static async getHistory(executeFunctions: IExecuteFunctions, index: number): Promise<IDataObject[]> {
-    const channelId = executeFunctions.getNodeParameter('channelId', index) as string;
-    const contactId = executeFunctions.getNodeParameter('contactId', index) as string;
+    const channelId = getParameterSafe(executeFunctions, 'channelId', index, '', true);
+    const contactId = getParameterSafe(executeFunctions, 'contactId', index, '', true);
 
     const response = await this.makeRequest(
       executeFunctions,

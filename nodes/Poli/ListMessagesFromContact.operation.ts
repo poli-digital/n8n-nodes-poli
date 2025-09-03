@@ -7,6 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export const listMessagesFromContactFields: INodeProperties[] = [
 	{
@@ -67,8 +68,8 @@ export async function executeListMessagesFromContact(this: IExecuteFunctions): P
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const contactUuid = this.getNodeParameter('contactUuid', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const contactUuid = getParameterSafe(this, 'contactUuid', i, '') as string;
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				include?: string[];
 				order?: string;
 				page?: number;

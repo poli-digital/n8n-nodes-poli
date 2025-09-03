@@ -33,6 +33,7 @@ import { ListTags } from './ListTags.operation';
 import { CreateTag } from './CreateTag.operation';
 
 import { ListUsers } from './ListUsers.operation';
+import { GetUser } from './GetUser.operation';
 
 import { ListTeams } from './ListTeams.operation';
 
@@ -79,6 +80,7 @@ export class Poli implements INodeType {
 			},
 			user: {
 				list: new ListUsers(),
+				get: new GetUser(),
 			},
 			team: {
 				list: new ListTeams(),
@@ -211,7 +213,10 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['user'] } },
-					options: [{ name: 'List and Search Users', value: 'list', action: 'List and Search Users' }],
+					options: [
+						{ name: 'List and Search Users', value: 'list', action: 'List and Search Users' },
+						{ name: 'Get User', value: 'get', action: 'Get User' },
+					],
 					default: 'list',
 				},
 				// TEAM ACTIONS
@@ -283,9 +288,56 @@ export class Poli implements INodeType {
 		};
 	}
 
+	// Método auxiliar para obter parâmetros com fallback seguro
+	private getParameterSafe(this: IExecuteFunctions, parameterName: string, itemIndex: number, fallback: any = ''): any {
+		try {
+			return this.getNodeParameter(parameterName, itemIndex, fallback);
+		} catch (error) {
+			console.warn(`⚠️ Parâmetro '${parameterName}' não encontrado no item ${itemIndex}, usando fallback:`, fallback);
+			return fallback;
+		}
+	}
+
 	async execute(this: IExecuteFunctions) {
-		const resource = this.getNodeParameter('resource', 0) as string;
-		const operation = this.getNodeParameter('operation', 0) as string;
+		// Obtenção segura dos parâmetros principais com fallbacks
+		let resource: string;
+		let operation: string;
+
+		try {
+			resource = this.getNodeParameter('resource', 0, 'contact') as string;
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "resource" não encontrado, usando fallback: "contact"');
+			resource = 'contact';
+		}
+
+		try {
+			operation = this.getNodeParameter('operation', 0, 'list') as string;
+		} catch (error) {
+			console.warn(`⚠️ Parâmetro "operation" não encontrado para resource "${resource}", usando fallback baseado no resource`);
+			// Define operação padrão baseada no resource
+			const defaultOperations: Record<string, string> = {
+				app: 'list',
+				account: 'list',
+				channel: 'list',
+				message: 'sendByContactId',
+				template: 'list',
+				contact: 'list',
+				tag: 'list',
+				user: 'list',
+				team: 'list',
+				webhook: 'list',
+			};
+			operation = defaultOperations[resource] || 'list';
+		}
+
+		// Validação dos parâmetros obtidos
+		if (!resource || typeof resource !== 'string') {
+			throw new Error('❌ Parâmetro "resource" é obrigatório e deve ser uma string válida');
+		}
+
+		if (!operation || typeof operation !== 'string') {
+			throw new Error('❌ Parâmetro "operation" é obrigatório e deve ser uma string válida');
+		}
 
 		const nodeMap: Record<string, Record<string, any>> = {
 			app: {
@@ -323,6 +375,7 @@ export class Poli implements INodeType {
 			},
 			user: {
 				list: new ListUsers(),
+				get: new GetUser(),
 			},
 			team: {
 				list: new ListTeams(),
@@ -333,12 +386,28 @@ export class Poli implements INodeType {
 			},
 		};
 
+		// Validação do resource
 		const resourceNodes = nodeMap[resource];
-		if (!resourceNodes) throw new Error(`Resource '${resource}' não encontrado`);
+		if (!resourceNodes) {
+			const availableResources = Object.keys(nodeMap).join(', ');
+			throw new Error(`❌ Resource '${resource}' não encontrado. Resources disponíveis: ${availableResources}`);
+		}
 
+		// Validação da operation
 		const targetNode = resourceNodes[operation];
-		if (!targetNode) throw new Error(`Operação '${operation}' não encontrada para o resource '${resource}'`);
+		if (!targetNode) {
+			const availableOperations = Object.keys(resourceNodes).join(', ');
+			throw new Error(`❌ Operação '${operation}' não encontrada para o resource '${resource}'. Operações disponíveis: ${availableOperations}`);
+		}
 
-		return await targetNode.execute.call(this);
+		console.log(`✅ Executando: resource="${resource}", operation="${operation}"`);
+
+		// Execução com tratamento de erro
+		try {
+			return await targetNode.execute.call(this);
+		} catch (error: any) {
+			console.error(`❌ Erro na execução de ${resource}.${operation}:`, error);
+			throw new Error(`Erro na execução de ${resource}.${operation}: ${error.message || error}`);
+		}
 	}
 }

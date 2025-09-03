@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe, getMultipleParametersSafe } from './utils/parameterUtils';
 
 export class CreateContact implements INodeType {
     description: INodeTypeDescription = {
@@ -91,17 +92,21 @@ export class CreateContact implements INodeType {
 
         for (let i = 0; i < items.length; i++) {
             try {
-                const accountId = this.getNodeParameter('accountId', i) as string;
-                const name = this.getNodeParameter('name', i) as string;
-                const phone = this.getNodeParameter('phone', i) as string;
-                const email = this.getNodeParameter('email', i, '') as string;
-                const doc = this.getNodeParameter('doc', i, '') as string;
-                const pictureFileId = this.getNodeParameter('pictureFileId', i, '') as string;
-                const tagUuid = this.getNodeParameter('tagUuid', i, '') as string;
-                const companyUuid = this.getNodeParameter('companyUuid', i, '') as string;
+                // Obtenção segura de parâmetros obrigatórios
+                const accountId = getParameterSafe(this, 'accountId', i, '', true);
+                const name = getParameterSafe(this, 'name', i, '', true);
+                const phone = getParameterSafe(this, 'phone', i, '', true);
+                
+                // Obtenção segura de parâmetros opcionais
+                const email = getParameterSafe(this, 'email', i, '');
+                const doc = getParameterSafe(this, 'doc', i, '');
+                const pictureFileId = getParameterSafe(this, 'pictureFileId', i, '');
+                const tagUuid = getParameterSafe(this, 'tagUuid', i, '');
+                const companyUuid = getParameterSafe(this, 'companyUuid', i, '');
 
-                const addressesParam = (this.getNodeParameter('addresses', i, {}) as { address?: Array<Record<string, string>> }) || {};
-                const channelsParam = (this.getNodeParameter('channels', i, {}) as { channel?: Array<{ phone: string }> }) || {};
+                // Obtenção segura de coleções complexas
+                const addressesParam = getParameterSafe(this, 'addresses', i, {}) as { address?: Array<Record<string, string>> };
+                const channelsParam = getParameterSafe(this, 'channels', i, {}) as { channel?: Array<{ phone: string }> };
 
                 const body: any = {
                     type: 'PERSON',

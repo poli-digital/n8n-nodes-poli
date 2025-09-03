@@ -1,6 +1,7 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 import { JsonObject } from 'n8n-workflow';
 
 export class CreateWebhook implements INodeType {
@@ -60,9 +61,9 @@ export class CreateWebhook implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const applicationId = this.getNodeParameter('applicationId', i);
-        const url = this.getNodeParameter('url', i) as string;
-        const subscriptions = this.getNodeParameter('subscriptions', i) as string[];
+        const applicationId = getParameterSafe(this, 'applicationId', i, '');
+        const url = getParameterSafe(this, 'url', i, '') as string;
+        const subscriptions = getParameterSafe(this, 'subscriptions', i, '') as string[];
 
         // Validate URL
         try {

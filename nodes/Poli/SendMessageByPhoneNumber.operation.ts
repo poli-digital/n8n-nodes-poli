@@ -1,6 +1,7 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class SendMessageByPhoneNumber implements INodeType {
   description: INodeTypeDescription = {
@@ -58,10 +59,10 @@ export class SendMessageByPhoneNumber implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = this.getNodeParameter('accountIdMessage', i);
-        const phoneNumber = this.getNodeParameter('phoneNumber', i);
-        const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
-        const text = this.getNodeParameter('text', i);
+        const accountId = getParameterSafe(this, 'accountIdMessage', i, '', true);
+        const phoneNumber = getParameterSafe(this, 'phoneNumber', i, '', true);
+        const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '', true);
+        const text = getParameterSafe(this, 'text', i, 'Teste de mensagem');
 
         const body = {
           provider: 'WHATSAPP',

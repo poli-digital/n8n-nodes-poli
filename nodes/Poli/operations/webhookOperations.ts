@@ -1,18 +1,19 @@
 import { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { BaseResource } from '../resources/base';
+import { getParameterSafe } from '../utils/parameterUtils';
 
 export async function createWebhook(this: IExecuteFunctions, i: number): Promise<IDataObject> {
   const body = {
-    applicationId: this.getNodeParameter('applicationId', i) as string,
-    url: this.getNodeParameter('url', i) as string,
-    subscriptions: this.getNodeParameter('subscriptions', i) as string[],
+    applicationId: getParameterSafe(this, 'applicationId', i, '', true),
+    url: getParameterSafe(this, 'url', i, '', true),
+    subscriptions: getParameterSafe(this, 'subscriptions', i, [], true),
   };
 
   return await BaseResource.makeRequest(this, 'POST', '/webhooks', body, i);
 }
 
 export async function listWebhooks(this: IExecuteFunctions, i: number): Promise<IDataObject[]> {
-  const applicationId = this.getNodeParameter('applicationId', i) as string;
+  const applicationId = getParameterSafe(this, 'applicationId', i, '', true);
 
   const response = await BaseResource.makeRequest(
     this,

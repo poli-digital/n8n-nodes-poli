@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class SendTemplateByContactId implements INodeType {
   description: INodeTypeDescription = {
@@ -115,11 +116,11 @@ export class SendTemplateByContactId implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactId = this.getNodeParameter('contactId', i);
-        const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
-        const templateUuid = this.getNodeParameter('templateUuid', i);
-        const headerParams = this.getNodeParameter('headerParams.parameter', i, []) as any[];
-        const bodyParams = this.getNodeParameter('bodyParams.parameter', i, []) as any[];
+        const contactId = getParameterSafe(this, 'contactId', i, '', true);
+        const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '');
+        const templateUuid = getParameterSafe(this, 'templateUuid', i, '');
+        const headerParams = getParameterSafe(this, 'headerParams.parameter', i, []) as any[];
+        const bodyParams = getParameterSafe(this, 'bodyParams.parameter', i, []) as any[];
 
         const components: any = {};
         if (headerParams.length > 0) {
