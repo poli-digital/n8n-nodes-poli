@@ -30,11 +30,12 @@ export class SendTemplateByPhoneNumber implements INodeType {
         required: true,
       },
       {
-        displayName: 'Phone Number (E.164 format)',
+        displayName: 'Phone',
         name: 'contactChannelUid',
         type: 'string',
         default: '',
         required: true,
+        description: 'Phone number in E.164 format',
       },
       {
         displayName: 'Account Channel ID',
@@ -157,7 +158,7 @@ export class SendTemplateByPhoneNumber implements INodeType {
           components,
         };
 
-        const endpoint = `/accounts/${accountUuid}/contacts/${contactChannelUid}/messages`;
+        const endpoint = `/accounts/${accountUuid}/contacts/${contactChannelUid}/messages?include=contact`;
         const responseData = await apiRequest.call(this, 'POST', endpoint, body);
         returnData.push({ json: responseData });
       } catch (error) {
