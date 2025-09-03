@@ -7,6 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export const updateContactFields: INodeProperties[] = [
 	{
@@ -71,12 +72,12 @@ export async function executeUpdateContact(this: IExecuteFunctions): Promise<any
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const contactUuid = this.getNodeParameter('contactUuid', i) as string;
-			const attributes = this.getNodeParameter('attributes', i, {}) as {
+			const contactUuid = getParameterSafe(this, 'contactUuid', i, '') as string;
+			const attributes = getParameterSafe(this, 'attributes', i, {}) as {
 				name?: string;
 				pictureFileId?: string;
 			};
-			const options = this.getNodeParameter('options', i, {}) as {
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				include?: string[];
 			};
 

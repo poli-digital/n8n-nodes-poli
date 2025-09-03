@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class CreateTag implements INodeType {
   description: INodeTypeDescription = {
@@ -44,8 +45,8 @@ export class CreateTag implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = this.getNodeParameter('accountId', i);
-        const tagName = this.getNodeParameter('tagName', i);
+        const accountId = getParameterSafe(this, 'accountId', i, '', true);
+        const tagName = getParameterSafe(this, 'tagName', i, '');
 
         const body = {
           name: tagName,

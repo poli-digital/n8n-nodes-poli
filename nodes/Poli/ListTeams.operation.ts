@@ -7,6 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export const listTeamsFields: INodeProperties[] = [
 	{
@@ -85,8 +86,8 @@ export async function executeListTeams(this: IExecuteFunctions): Promise<any> {
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountUuid = this.getNodeParameter('accountUuid', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const accountUuid = getParameterSafe(this, 'accountUuid', i, '') as string;
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;

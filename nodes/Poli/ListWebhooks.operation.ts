@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { apiRequest } from './transport'; // Ajuste o caminho do import se necessário
+import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils'; // Ajuste o caminho do import se necessário
 
 /**
  * Propriedades da UI para a operação 'List Webhooks'
@@ -78,8 +79,8 @@ export async function executeListWebhooks(this: IExecuteFunctions): Promise<any>
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const applicationId = this.getNodeParameter('applicationId', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const applicationId = getParameterSafe(this, 'applicationId', i, '') as string;
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;

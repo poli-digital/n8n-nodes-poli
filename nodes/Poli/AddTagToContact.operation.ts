@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class AddTagToContact implements INodeType {
   description: INodeTypeDescription = {
@@ -49,8 +50,8 @@ export class AddTagToContact implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactUuid = this.getNodeParameter('contactUuid', i);
-        const tagUuid = this.getNodeParameter('tagUuid', i);
+        const contactUuid = getParameterSafe(this, 'contactUuid', i, '');
+        const tagUuid = getParameterSafe(this, 'tagUuid', i, '');
 
         const body = { tag_uuid: tagUuid };
         const endpoint = `/contacts/${contactUuid}/tags`;

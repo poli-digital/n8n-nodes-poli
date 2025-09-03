@@ -7,6 +7,7 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export const getChannelFields: INodeProperties[] = [
 	{
@@ -44,8 +45,8 @@ export async function executeGetChannel(this: IExecuteFunctions): Promise<any> {
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '') as string;
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				include?: string[];
 			};
 
