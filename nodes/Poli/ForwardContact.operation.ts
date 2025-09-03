@@ -86,7 +86,7 @@ export class ForwardContact implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactUuid = getParameterSafe(this, 'contactUuid', i, '') as string;
+        const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true) as string;
         const forwardType = getParameterSafe(this, 'forwardType', i, '') as 'user' | 'team';
 
         // Validar se o UUID do contato não está vazio

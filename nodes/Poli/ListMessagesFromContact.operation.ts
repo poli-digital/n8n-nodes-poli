@@ -68,7 +68,7 @@ export async function executeListMessagesFromContact(this: IExecuteFunctions): P
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const contactUuid = getParameterSafe(this, 'contactUuid', i, '') as string;
+			const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true) as string;
 			const options = getParameterSafe(this, 'options', i, {}) as {
 				include?: string[];
 				order?: string;

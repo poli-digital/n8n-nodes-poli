@@ -50,7 +50,7 @@ export class AddTagToContact implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactUuid = getParameterSafe(this, 'contactUuid', i, '');
+        const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true);
         const tagUuid = getParameterSafe(this, 'tagUuid', i, '');
 
         const body = { tag_uuid: tagUuid };
