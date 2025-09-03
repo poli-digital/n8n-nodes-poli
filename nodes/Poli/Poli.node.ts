@@ -5,6 +5,8 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
+import { getParameterSafe } from './utils/parameterUtils';
+
 // Importações dos nodes existentes
 import { ListContacts } from './ListContacts.operation';
 import { CreateContact } from './CreateContact.operation';
@@ -288,30 +290,20 @@ export class Poli implements INodeType {
 		};
 	}
 
-	// Método auxiliar para obter parâmetros com fallback seguro
-	private getParameterSafe(this: IExecuteFunctions, parameterName: string, itemIndex: number, fallback: any = ''): any {
-		try {
-			return this.getNodeParameter(parameterName, itemIndex, fallback);
-		} catch (error) {
-			console.warn(`⚠️ Parâmetro '${parameterName}' não encontrado no item ${itemIndex}, usando fallback:`, fallback);
-			return fallback;
-		}
-	}
-
 	async execute(this: IExecuteFunctions) {
 		// Obtenção segura dos parâmetros principais com fallbacks
 		let resource: string;
 		let operation: string;
 
 		try {
-			resource = this.getNodeParameter('resource', 0, 'contact') as string;
+			resource = getParameterSafe(this, 'resource', 0, 'contact') as string;
 		} catch (error) {
 			console.warn('⚠️ Parâmetro "resource" não encontrado, usando fallback: "contact"');
 			resource = 'contact';
 		}
 
 		try {
-			operation = this.getNodeParameter('operation', 0, 'list') as string;
+			operation = getParameterSafe(this, 'operation', 0, 'list') as string;
 		} catch (error) {
 			console.warn(`⚠️ Parâmetro "operation" não encontrado para resource "${resource}", usando fallback baseado no resource`);
 			// Define operação padrão baseada no resource
