@@ -72,7 +72,7 @@ export async function executeUpdateContact(this: IExecuteFunctions): Promise<any
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const contactUuid = getParameterSafe(this, 'contactUuid', i, '') as string;
+			const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true) as string;
 			const attributes = getParameterSafe(this, 'attributes', i, {}) as {
 				name?: string;
 				pictureFileId?: string;

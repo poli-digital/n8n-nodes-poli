@@ -123,7 +123,7 @@ export class SendTemplateByPhoneNumber implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountUuid = getParameterSafe(this, 'accountUuid', i, '');
+        const accountUuid = getParameterSafe(this, 'accountUuid', i, '', true);
         const contactChannelUid = getParameterSafe(this, 'contactChannelUid', i, '');
         const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '');
         const templateUuid = getParameterSafe(this, 'templateUuid', i, '');

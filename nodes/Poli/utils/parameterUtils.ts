@@ -76,3 +76,48 @@ export function getMultipleParametersSafe(
 	
 	return result;
 }
+
+/**
+ * Sanitiza e valida uma URL
+ * @param url - URL a ser validada
+ * @param parameterName - Nome do parâmetro para mensagem de erro
+ * @returns URL validada
+ */
+export function validateAndSanitizeUrl(url: string, parameterName: string = 'url'): string {
+	if (!url || url.trim() === '') {
+		throw new Error(`❌ Parâmetro '${parameterName}' deve conter uma URL válida`);
+	}
+
+	const trimmedUrl = url.trim();
+	
+	try {
+		new URL(trimmedUrl);
+		return trimmedUrl;
+	} catch (error) {
+		throw new Error(`❌ Parâmetro '${parameterName}' deve conter uma URL válida. Formato: https://exemplo.com/webhook`);
+	}
+}
+
+/**
+ * Sanitiza um endpoint para a API
+ * @param endpoint - Endpoint a ser sanitizado
+ * @returns Endpoint sanitizado
+ */
+export function sanitizeEndpoint(endpoint: string): string {
+	if (!endpoint) return '/';
+	
+	// Remove espaços e garante que comece com "/"
+	const cleaned = endpoint.trim();
+	return cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+}
+
+/**
+ * Valida se um array não está vazio quando obrigatório
+ * @param array - Array a ser validado
+ * @param parameterName - Nome do parâmetro para mensagem de erro
+ */
+export function validateRequiredArray(array: any[], parameterName: string): void {
+	if (!Array.isArray(array) || array.length === 0) {
+		throw new Error(`❌ Parâmetro '${parameterName}' deve conter pelo menos um item`);
+	}
+}

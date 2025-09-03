@@ -1,7 +1,7 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { getParameterSafe } from './utils/parameterUtils';
+import { getParameterSafe, validateAndSanitizeUrl, validateRequiredArray } from './utils/parameterUtils';
 import { JsonObject } from 'n8n-workflow';
 
 export class CreateWebhook implements INodeType {
@@ -61,21 +61,15 @@ export class CreateWebhook implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const applicationId = getParameterSafe(this, 'applicationId', i, '');
-        const url = getParameterSafe(this, 'url', i, '') as string;
-        const subscriptions = getParameterSafe(this, 'subscriptions', i, '') as string[];
+        const applicationId = getParameterSafe(this, 'applicationId', i, '', true);
+        const url = getParameterSafe(this, 'url', i, '', true) as string;
+        const subscriptions = getParameterSafe(this, 'subscriptions', i, [], true) as string[];
 
-        // Validate URL
-        try {
-          new URL(url);
-        } catch (error) {
-          throw new Error('Invalid webhook URL. Please provide a valid URL.');
-        }
+        // Validate URL usando função utilitária
+        const validatedUrl = validateAndSanitizeUrl(url, 'url');
 
-        // Validate subscriptions
-        if (!subscriptions || subscriptions.length === 0) {
-          throw new Error('At least one subscription must be selected.');
-        }
+        // Validate subscriptions usando função utilitária
+        validateRequiredArray(subscriptions, 'subscriptions');
 
         const validSubscriptions = ['organizations', 'chats', 'contacts', 'users', 'applications'];
         const invalidSubscriptions = subscriptions.filter(s => !validSubscriptions.includes(s));
@@ -83,7 +77,10 @@ export class CreateWebhook implements INodeType {
           throw new Error(`Invalid subscriptions: ${invalidSubscriptions.join(', ')}`);
         }
 
-        const body = { url, subscriptions };
+                const body = {
+          url: validatedUrl,
+          subscriptions: subscriptions.filter(sub => validSubscriptions.includes(sub)),
+        };
         const endpoint = `/applications/${applicationId}/webhooks?include=url,subscriptions`;
 
         try {
