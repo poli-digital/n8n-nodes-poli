@@ -53,10 +53,16 @@ export class AddTagToContact implements INodeType {
         const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true);
         const tagUuid = getParameterSafe(this, 'tagUuid', i, '');
 
-        const body = { tag_uuid: tagUuid };
-        const endpoint = `/contacts/${contactUuid}/tags`;
+        const body = {
+          tags: [
+            {
+              uuid: tagUuid,
+            },
+          ],
+        };
 
-        const responseData = await apiRequest.call(this, 'POST', endpoint, body);
+        const endpoint = `/contacts/${contactUuid}?include=attributes,tags`;
+        const responseData = await apiRequest.call(this, 'PUT', endpoint, body);
         returnData.push({ json: responseData });
       } catch (error) {
         throw new NodeApiError(this.getNode(), error as JsonObject);
