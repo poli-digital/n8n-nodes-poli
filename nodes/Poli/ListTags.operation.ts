@@ -1,17 +1,15 @@
-import { IExecuteFunctions, INodeProperties, JsonObject, NodeApiError, INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { apiRequest } from './transport'; // Ajuste o caminho do import se necessário
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
+import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
-/**
- * Propriedades da UI para a operação 'List Webhooks'
- */
-export const listWebhooksFields: INodeProperties[] = [
+export const listTagsFields: INodeProperties[] = [
 	{
-		displayName: 'Application ID',
-		name: 'applicationId',
+		displayName: 'Account ID',
+		name: 'accountId',
 		type: 'string',
 		default: '',
 		required: true,
-		description: 'The ID of the application to list webhooks from',
+		description: 'ID da conta',
 	},
 	{
 		displayName: 'Options',
@@ -42,7 +40,14 @@ export const listWebhooksFields: INodeProperties[] = [
 				displayName: 'Per Page',
 				name: 'perPage',
 				type: 'number',
-				default: 50,
+				default: 100,
+			},
+			{
+				displayName: 'Query',
+				name: 'query',
+				type: 'string',
+				default: '',
+				description: 'Raw query string (ex: id=18&name=gabriel)',
 			},
 			{
 				displayName: 'Include',
@@ -50,50 +55,39 @@ export const listWebhooksFields: INodeProperties[] = [
 				type: 'multiOptions',
 				options: [
 					{ name: 'Status', value: 'status' },
-					{ name: 'URL', value: 'url' },
-					{ name: 'Subscriptions', value: 'subscriptions' },
-					{ name: 'Application', value: 'application' },
+					{ name: 'Category', value: 'category' },
+					{ name: 'Attributes', value: 'attributes' },
+					{ name: 'Contacts', value: 'contacts' },
 					{ name: 'Metadata', value: 'metadata' },
-                    // ...outras opções relevantes...
 				],
-				default: [],
-			},
-			{
-				displayName: 'Query',
-				name: 'query',
-				type: 'string',
-				default: '',
-				description: 'Raw query string (e.g. id=18&name=gabriel)',
+				default: ['attributes'],
 			},
 		],
 	},
 ];
 
-/**
- * Lógica de execução para a operação 'List Webhooks'
- */
-export async function executeListWebhooks(this: IExecuteFunctions): Promise<any> {
+export async function executeListTags(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const applicationId = this.getNodeParameter('applicationId', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const accountId = getParameterSafe(this, 'accountId', i, '', true) as string;
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;
 				perPage?: number;
-				include?: string[];
 				query?: string;
+				include?: string[];
 			};
 
 			const params = new URLSearchParams();
 
 			if (options.search) params.append('search', options.search);
 			if (options.order) params.append('order', options.order);
-			if (options.page) params.append('page', String(options.page));
-			if (options.perPage) params.append('perPage', String(options.perPage));
+			if (options.page) params.append('page', options.page.toString());
+			if (options.perPage) params.append('perPage', options.perPage.toString());
 			if (options.include?.length) params.append('include', options.include.join(','));
 
 			if (options.query) {
@@ -105,10 +99,9 @@ export async function executeListWebhooks(this: IExecuteFunctions): Promise<any>
 				}
 			}
 
-			const endpoint = `/applications/${applicationId}/webhooks?${params.toString()}`;
+			const endpoint = `/accounts/${accountId}/tags?${params.toString()}`;
 			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
-
 		} catch (error) {
 			throw new NodeApiError(this.getNode(), error as JsonObject);
 		}
@@ -117,22 +110,22 @@ export async function executeListWebhooks(this: IExecuteFunctions): Promise<any>
 	return [returnData];
 }
 
-export class ListWebhooks implements INodeType {
+export class ListTags implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'List Webhooks',
-		name: 'listWebhooks',
-		group: ['transform'],
+		displayName: 'List Tags',
+		name: 'listTags',
+		group: ['output'],
 		version: 1,
-		description: 'List webhooks from Poli API',
+		description: 'List all tags from Poli API',
 		defaults: {
-			name: 'List Webhooks',
+			name: 'List Tags',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
-		properties: listWebhooksFields,
+		properties: listTagsFields,
 	};
 
 	async execute(this: IExecuteFunctions) {
-		return executeListWebhooks.call(this);
+		return executeListTags.call(this);
 	}
 }

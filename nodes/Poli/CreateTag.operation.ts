@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class CreateTag implements INodeType {
   description: INodeTypeDescription = {
@@ -35,6 +36,21 @@ export class CreateTag implements INodeType {
         default: '',
         required: true,
       },
+      {
+        displayName: 'Description',
+        name: 'description',
+        type: 'string',
+        default: '',
+        required: true,
+      },
+      {
+        displayName: 'Color',
+        name: 'color',
+        type: 'string',
+        default: '#f0f0f0',
+        required: true,
+        description: 'Color in hexadecimal format (e.g., #f0f0f0)',
+      },
     ],
   };
 
@@ -44,14 +60,21 @@ export class CreateTag implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = this.getNodeParameter('accountId', i);
-        const tagName = this.getNodeParameter('tagName', i);
+        const accountId = getParameterSafe(this, 'accountId', i, '', true);
+        const tagName = getParameterSafe(this, 'tagName', i, '');
+        const description = getParameterSafe(this, 'description', i, '');
+        const color = getParameterSafe(this, 'color', i, '#f0f0f0');
 
         const body = {
-          name: tagName,
+          status: 'ACTIVE',
+          attributes: {
+            name: tagName,
+            description: description,
+            color: color,
+          },
         };
 
-        const endpoint = `/accounts/${accountId}/tags`;
+        const endpoint = `/accounts/${accountId}/tags?include=attributes`;
         const responseData = await apiRequest.call(this, 'POST', endpoint, body);
         returnData.push({ json: responseData });
       } catch (error) {

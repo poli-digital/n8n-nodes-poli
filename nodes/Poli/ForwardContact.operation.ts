@@ -1,5 +1,6 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class ForwardContact implements INodeType {
   description: INodeTypeDescription = {
@@ -85,8 +86,8 @@ export class ForwardContact implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactUuid = this.getNodeParameter('contactUuid', i) as string;
-        const forwardType = this.getNodeParameter('forwardType', i) as 'user' | 'team';
+        const contactUuid = getParameterSafe(this, 'contactUuid', i, '', true) as string;
+        const forwardType = getParameterSafe(this, 'forwardType', i, '') as 'user' | 'team';
 
         // Validar se o UUID do contato não está vazio
         if (!contactUuid || contactUuid.trim() === '') {
@@ -99,7 +100,7 @@ export class ForwardContact implements INodeType {
 
         // Lógica de escolha exclusiva
         if (forwardType === 'user') {
-          const userUuid = this.getNodeParameter('userUuid', i) as string;
+          const userUuid = getParameterSafe(this, 'userUuid', i, '') as string;
           
           if (!userUuid || userUuid.trim() === '') {
             throw new NodeApiError(this.getNode(), {
@@ -109,7 +110,7 @@ export class ForwardContact implements INodeType {
           
           body.user_uuid = userUuid;
         } else if (forwardType === 'team') {
-          const teamUuid = this.getNodeParameter('teamUuid', i) as string;
+          const teamUuid = getParameterSafe(this, 'teamUuid', i, '') as string;
           
           if (!teamUuid || teamUuid.trim() === '') {
             throw new NodeApiError(this.getNode(), {

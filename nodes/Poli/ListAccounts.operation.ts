@@ -1,15 +1,15 @@
-import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
+import {
+	IExecuteFunctions,
+	INodeType,
+	INodeTypeDescription,
+	JsonObject,
+	NodeApiError,
+	INodeProperties,
+} from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
-export const listContactsFields: INodeProperties[] = [
-	{
-		displayName: 'Account ID',
-		name: 'accountId',
-		type: 'string',
-		default: '',
-		required: true,
-		description: 'ID da conta',
-	},
+export const listAccountsFields: INodeProperties[] = [
 	{
 		displayName: 'Options',
 		name: 'options',
@@ -22,7 +22,24 @@ export const listContactsFields: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
-				description: 'Texto para busca',
+			},
+			{
+				displayName: 'Order',
+				name: 'order',
+				type: 'string',
+				default: '',
+			},
+			{
+				displayName: 'Page',
+				name: 'page',
+				type: 'number',
+				default: 1,
+			},
+			{
+				displayName: 'Per Page',
+				name: 'perPage',
+				type: 'number',
+				default: 100,
 			},
 			{
 				displayName: 'Query',
@@ -32,67 +49,37 @@ export const listContactsFields: INodeProperties[] = [
 				description: 'Raw query string (ex: id=18&name=gabriel)',
 			},
 			{
-				displayName: 'Order',
-				name: 'order',
-				type: 'string',
-				default: '',
-				description: 'Campo e direção de ordenação, ex: created_at desc',
-			},
-			{
-				displayName: 'Page',
-				name: 'page',
-				type: 'number',
-				default: 1,
-				typeOptions: { minValue: 1 },
-				description: 'Número da página',
-			},
-			{
-				displayName: 'Per Page',
-				name: 'perPage',
-				type: 'number',
-				default: 20,
-				typeOptions: { minValue: 1, maxValue: 100 },
-				description: 'Itens por página',
-			},
-			{
 				displayName: 'Include',
 				name: 'include',
 				type: 'multiOptions',
 				options: [
-					{ name: 'Type', value: 'type' },
-					{ name: 'Chat Status', value: 'chat_status' },
-					{ name: 'Read Status', value: 'read_status' },
+					{ name: 'Status', value: 'status' },
 					{ name: 'Attributes', value: 'attributes' },
-					{ name: 'Account', value: 'account' },
-					{ name: 'Attendant', value: 'attendant' },
-					{ name: 'Contact Channels', value: 'contact_channels' },
-					{ name: 'Current Attendance', value: 'current_attendance' },
-					{ name: 'Last Message', value: 'last_message' },
-					{ name: 'Tags', value: 'tags' },
+					{ name: 'Organization', value: 'organization' },
+					{ name: 'Account Channels', value: 'account_channels' },
 					{ name: 'Addresses', value: 'addresses' },
+					{ name: 'Applications', value: 'applications' },
 					{ name: 'Metadata', value: 'metadata' },
 				],
 				default: [],
-				description: 'Campos adicionais para incluir na resposta',
 			},
 		],
 	},
 ];
 
-export async function executeListContacts(this: IExecuteFunctions): Promise<any> {
+export async function executeListAccounts(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountId = this.getNodeParameter('accountId', i) as string;
-			const options = this.getNodeParameter('options', i, {}) as {
+			const options = getParameterSafe(this, 'options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;
 				perPage?: number;
-				include?: string[];
 				query?: string;
+				include?: string[];
 			};
 
 			const params = new URLSearchParams();
@@ -112,7 +99,7 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 				}
 			}
 
-			const endpoint = `/accounts/${accountId}/contacts?${params.toString()}`;
+			const endpoint = `/accounts?${params.toString()}`;
 			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
 		} catch (error) {
@@ -123,22 +110,22 @@ export async function executeListContacts(this: IExecuteFunctions): Promise<any>
 	return [returnData];
 }
 
-export class ListContacts implements INodeType {
+export class ListAccounts implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'List Contacts',
-		name: 'listContacts',
-		group: ['transform'],
+		displayName: 'List Accounts',
+		name: 'listAccounts',
+		group: ['output'],
 		version: 1,
-		description: 'List contacts from Poli API',
+		description: 'List all accounts from Poli API',
 		defaults: {
-			name: 'List Contacts',
+			name: 'List Accounts',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
-		properties: listContactsFields,
+		properties: listAccountsFields,
 	};
 
 	async execute(this: IExecuteFunctions) {
-		return executeListContacts.call(this);
+		return executeListAccounts.call(this);
 	}
 }

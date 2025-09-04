@@ -10,6 +10,7 @@ import type {
 
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class PoliTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -119,15 +120,56 @@ export class PoliTrigger implements INodeType {
 		const credentials = await this.getCredentials('poliApi');
 		const webhookHost = process.env.WEBHOOK_URL || 'http://localhost:5678';
 		const webhookEndpoint = process.env.N8N_ENDPOINT_WEBHOOK || 'webhook';
-		const webhookPath = this.getNodeParameter('webhookPath', 0) as string;
+		let webhookPath: string;
+		let events: string[];
+		let appName: string;
+		let page: number;
+
+		try {
+			webhookPath = this.getNodeParameter('webhookPath', 0) as string || 'poli';
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "webhookPath" não encontrado, usando fallback: "poli"');
+			webhookPath = 'poli';
+		}
+
+		if (!webhookPath || typeof webhookPath !== 'string') {
+			throw new Error('❌ Parâmetro "webhookPath" é obrigatório e deve ser uma string válida');
+		}
+
 		const webhookUrl = `${webhookHost}/${webhookEndpoint}/${webhookPath}`;
 
 		console.log('🚀 URL de webhook:', webhookUrl);
 
 		const accountUuid = credentials.accountUuid as string;
-		const events = this.getNodeParameter('events', 0) as string[];
-		const appName = this.getNodeParameter('appName', 0) as string;
-		const page = this.getNodeParameter('page', 0) as number || 1;
+
+		try {
+			events = this.getNodeParameter('events', 0) as string[] || ['message.received'];
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "events" não encontrado, usando fallback: ["message.received"]');
+			events = ['message.received'];
+		}
+
+		if (!events || !Array.isArray(events) || events.length === 0) {
+			throw new Error('❌ Parâmetro "events" é obrigatório e deve ser um array com pelo menos um evento');
+		}
+
+		try {
+			appName = this.getNodeParameter('appName', 0) as string;
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "appName" não encontrado');
+			throw new Error('❌ Parâmetro "appName" é obrigatório');
+		}
+
+		if (!appName || typeof appName !== 'string') {
+			throw new Error('❌ Parâmetro "appName" é obrigatório e deve ser uma string válida');
+		}
+
+		try {
+			page = this.getNodeParameter('page', 0) as number || 1;
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "page" não encontrado, usando fallback: 1');
+			page = 1;
+		}
 
 		const perPage = 100;
 
@@ -203,7 +245,19 @@ export class PoliTrigger implements INodeType {
 	async deactivate(this: IWebhookFunctions): Promise<void> {
 		const credentials = await this.getCredentials('poliApi');
 		const accountUuid = credentials.accountUuid as string;
-		const appName = this.getNodeParameter('appName', 0) as string;
+		
+		let appName: string;
+		try {
+			appName = this.getNodeParameter('appName', 0) as string;
+		} catch (error) {
+			console.warn('⚠️ Parâmetro "appName" não encontrado durante desativação');
+			return; // Se não temos o nome do app, não podemos desativar
+		}
+
+		if (!appName || typeof appName !== 'string') {
+			console.warn('⚠️ Nome do app inválido durante desativação');
+			return;
+		}
 
 		try {
 			const appsResponse = await apiRequest.call(

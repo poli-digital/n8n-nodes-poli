@@ -1,6 +1,7 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
+import { getParameterSafe } from './utils/parameterUtils';
 
 export class ListApps implements INodeType {
   description: INodeTypeDescription = {
@@ -101,8 +102,8 @@ export class ListApps implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = this.getNodeParameter('accountId', i) as string;
-        const options = this.getNodeParameter('options', i, {}) as {
+        const accountId = getParameterSafe(this, 'accountId', i, '', true) as string;
+        const options = getParameterSafe(this, 'options', i, {}) as {
           search?: string;
           order?: string;
           page?: number;
