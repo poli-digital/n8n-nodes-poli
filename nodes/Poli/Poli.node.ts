@@ -38,6 +38,7 @@ import { ListUsers } from './ListUsers.operation';
 import { GetUser } from './GetUser.operation';
 
 import { ListTeams } from './ListTeams.operation';
+import { GetTeam } from './GetTeam.operation';
 
 import { ListWebhooks } from './ListWebhooks.operation';
 import { CreateWebhook } from './CreateWebhook.operation';
@@ -86,6 +87,7 @@ export class Poli implements INodeType {
 			},
 			team: {
 				list: new ListTeams(),
+				get: new GetTeam(),
 			},
 			webhook: {
 				list: new ListWebhooks(),
@@ -228,7 +230,10 @@ export class Poli implements INodeType {
 					type: 'options',
 					noDataExpression: true,
 					displayOptions: { show: { resource: ['team'] } },
-					options: [{ name: 'List Teams', value: 'list', action: 'List Teams' }],
+					options: [
+						{ name: 'List Teams', value: 'list', action: 'List Teams' },
+						{ name: 'Get Team', value: 'get', action: 'Get Team' },
+					],
 					default: 'list',
 				},
 				// WEBHOOK ACTIONS
@@ -371,6 +376,7 @@ export class Poli implements INodeType {
 			},
 			team: {
 				list: new ListTeams(),
+				get: new GetTeam(),
 			},
 			webhook: {
 				list: new ListWebhooks(),
