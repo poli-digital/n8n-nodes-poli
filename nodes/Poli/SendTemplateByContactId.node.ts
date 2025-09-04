@@ -1,6 +1,5 @@
 import { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription, JsonObject, NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { getParameterSafe } from './utils/parameterUtils';
 
 export class SendTemplateByContactId implements INodeType {
   description: INodeTypeDescription = {
@@ -30,14 +29,14 @@ export class SendTemplateByContactId implements INodeType {
         required: true,
       },
       {
-        displayName: 'Account Channel ID',
+        displayName: 'Account Channel UUID',
         name: 'accountChannelUuid',
         type: 'string',
         default: '',
         required: true,
       },
       {
-        displayName: 'Template ID',
+        displayName: 'Template UUID',
         name: 'templateUuid',
         type: 'string',
         default: '',
@@ -116,11 +115,11 @@ export class SendTemplateByContactId implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const contactId = getParameterSafe(this, 'contactId', i, '', true);
-        const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '', true);
-        const templateUuid = getParameterSafe(this, 'templateUuid', i, '', true);
-        const headerParams = getParameterSafe(this, 'headerParams.parameter', i, []) as any[];
-        const bodyParams = getParameterSafe(this, 'bodyParams.parameter', i, []) as any[];
+        const contactId = this.getNodeParameter('contactId', i);
+        const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+        const templateUuid = this.getNodeParameter('templateUuid', i);
+        const headerParams = this.getNodeParameter('headerParams.parameter', i, []) as any[];
+        const bodyParams = this.getNodeParameter('bodyParams.parameter', i, []) as any[];
 
         const components: any = {};
         if (headerParams.length > 0) {

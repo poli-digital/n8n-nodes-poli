@@ -1,22 +1,14 @@
-import {
-	IExecuteFunctions,
-	INodeType,
-	INodeTypeDescription,
-	JsonObject,
-	NodeApiError,
-	INodeProperties,
-} from 'n8n-workflow';
+import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { getParameterSafe } from './utils/parameterUtils';
 
-export const listTeamsFields: INodeProperties[] = [
+export const listTemplatesFields: INodeProperties[] = [
 	{
-		displayName: 'Account UUID',
-		name: 'accountUuid',
+		displayName: 'Account ID',
+		name: 'accountId',
 		type: 'string',
-		required: true,
 		default: '',
-		description: 'UUID da conta para listar os times',
+		required: true,
+		description: 'ID da conta',
 	},
 	{
 		displayName: 'Options',
@@ -30,14 +22,14 @@ export const listTeamsFields: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
-				description: 'Termo para pesquisar times',
+				description: 'Texto para busca',
 			},
 			{
 				displayName: 'Order',
 				name: 'order',
 				type: 'string',
 				default: '',
-				description: 'Ordenação dos resultados',
+				description: 'Campo e direção de ordenação, ex: created_at desc',
 			},
 			{
 				displayName: 'Page',
@@ -50,15 +42,8 @@ export const listTeamsFields: INodeProperties[] = [
 				displayName: 'Per Page',
 				name: 'perPage',
 				type: 'number',
-				default: 100,
-				description: 'Quantidade de resultados por página',
-			},
-			{
-				displayName: 'Query',
-				name: 'query',
-				type: 'string',
-				default: '',
-				description: 'Query string bruta (ex: id=18&name=gabriel)',
+				default: 50,
+				description: 'Itens por página',
 			},
 			{
 				displayName: 'Include',
@@ -66,41 +51,41 @@ export const listTeamsFields: INodeProperties[] = [
 				type: 'multiOptions',
 				options: [
 					{ name: 'Key', value: 'key' },
+					{ name: 'Version', value: 'version' },
 					{ name: 'Status', value: 'status' },
-					{ name: 'Visibility', value: 'visibility' },
-					{ name: 'Staging', value: 'staging' },
-					{ name: 'Attributes', value: 'attributes' },
-					{ name: 'Users', value: 'users' },
+					{ name: 'Message', value: 'message' },
+					{ name: 'Team', value: 'team' },
 					{ name: 'Metadata', value: 'metadata' },
 				],
 				default: [],
-				description: 'Dados adicionais para incluir na resposta',
+				description: 'Campos adicionais para incluir na resposta',
+			},
+			{
+				displayName: 'Query',
+				name: 'query',
+				type: 'string',
+				default: '',
+				description: 'Raw query string (ex: id=18&name=gabriel)',
 			},
 		],
 	},
 ];
 
-export async function executeListTeams(this: IExecuteFunctions): Promise<any> {
+export async function executeListTemplates(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountUuid = getParameterSafe(this, 'accountUuid', i, '', true) as string;
-			const options = getParameterSafe(this, 'options', i, {}) as {
+			const accountId = this.getNodeParameter('accountId', i) as string;
+			const options = this.getNodeParameter('options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;
 				perPage?: number;
-				query?: string;
 				include?: string[];
+				query?: string;
 			};
-
-			if (!accountUuid) {
-				throw new NodeApiError(this.getNode(), {
-					message: 'Account UUID é obrigatório',
-				} as JsonObject);
-			}
 
 			const params = new URLSearchParams();
 
@@ -119,7 +104,7 @@ export async function executeListTeams(this: IExecuteFunctions): Promise<any> {
 				}
 			}
 
-			const endpoint = `/accounts/${accountUuid}/teams?${params.toString()}`;
+			const endpoint = `/accounts/${accountId}/templates?${params.toString()}`;
 			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
 		} catch (error) {
@@ -130,22 +115,22 @@ export async function executeListTeams(this: IExecuteFunctions): Promise<any> {
 	return [returnData];
 }
 
-export class ListTeams implements INodeType {
+export class ListTemplates implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'List Teams',
-		name: 'listTeams',
+		displayName: 'List Templates',
+		name: 'listTemplates',
 		group: ['output'],
 		version: 1,
-		description: 'List all teams from a specific account in Poli API',
+		description: 'List all templates from Poli API',
 		defaults: {
-			name: 'List Teams',
+			name: 'List Templates',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
-		properties: listTeamsFields,
+		properties: listTemplatesFields,
 	};
 
 	async execute(this: IExecuteFunctions) {
-		return executeListTeams.call(this);
+		return executeListTemplates.call(this);
 	}
 }

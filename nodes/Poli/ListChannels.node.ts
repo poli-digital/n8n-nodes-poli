@@ -1,8 +1,14 @@
-import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject, NodeApiError, INodeProperties } from 'n8n-workflow';
+import {
+	IExecuteFunctions,
+	INodeType,
+	INodeTypeDescription,
+	JsonObject,
+	NodeApiError,
+	INodeProperties,
+} from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { getParameterSafe } from './utils/parameterUtils';
 
-export const listTemplatesFields: INodeProperties[] = [
+export const listChannelsFields: INodeProperties[] = [
 	{
 		displayName: 'Account ID',
 		name: 'accountId',
@@ -26,6 +32,13 @@ export const listTemplatesFields: INodeProperties[] = [
 				description: 'Texto para busca',
 			},
 			{
+				displayName: 'Query',
+				name: 'query',
+				type: 'string',
+				default: '',
+				description: 'Raw query string (ex: id=18&name=gabriel)',
+			},
+			{
 				displayName: 'Order',
 				name: 'order',
 				type: 'string',
@@ -37,13 +50,15 @@ export const listTemplatesFields: INodeProperties[] = [
 				name: 'page',
 				type: 'number',
 				default: 1,
+				typeOptions: { minValue: 1 },
 				description: 'Número da página',
 			},
 			{
 				displayName: 'Per Page',
 				name: 'perPage',
 				type: 'number',
-				default: 50,
+				default: 20,
+				typeOptions: { minValue: 1, maxValue: 100 },
 				description: 'Itens por página',
 			},
 			{
@@ -51,35 +66,34 @@ export const listTemplatesFields: INodeProperties[] = [
 				name: 'include',
 				type: 'multiOptions',
 				options: [
-					{ name: 'Key', value: 'key' },
-					{ name: 'Version', value: 'version' },
-					{ name: 'Status', value: 'status' },
-					{ name: 'Message', value: 'message' },
-					{ name: 'Team', value: 'team' },
+					{ name: 'Type', value: 'type' },
+					{ name: 'Chat Status', value: 'chat_status' },
+					{ name: 'Read Status', value: 'read_status' },
+					{ name: 'Attributes', value: 'attributes' },
+					{ name: 'Account', value: 'account' },
+					{ name: 'Attendant', value: 'attendant' },
+					{ name: 'Contact Channels', value: 'contact_channels' },
+					{ name: 'Current Attendance', value: 'current_attendance' },
+					{ name: 'Last Message', value: 'last_message' },
+					{ name: 'Tags', value: 'tags' },
+					{ name: 'Addresses', value: 'addresses' },
 					{ name: 'Metadata', value: 'metadata' },
 				],
 				default: [],
 				description: 'Campos adicionais para incluir na resposta',
 			},
-			{
-				displayName: 'Query',
-				name: 'query',
-				type: 'string',
-				default: '',
-				description: 'Raw query string (ex: id=18&name=gabriel)',
-			},
 		],
 	},
 ];
 
-export async function executeListTemplates(this: IExecuteFunctions): Promise<any> {
+export async function executeListChannels(this: IExecuteFunctions): Promise<any> {
 	const items = this.getInputData();
 	const returnData = [];
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			const accountId = getParameterSafe(this, 'accountId', i, '', true) as string;
-			const options = getParameterSafe(this, 'options', i, {}) as {
+			const accountId = this.getNodeParameter('accountId', i) as string;
+			const options = this.getNodeParameter('options', i, {}) as {
 				search?: string;
 				order?: string;
 				page?: number;
@@ -105,7 +119,8 @@ export async function executeListTemplates(this: IExecuteFunctions): Promise<any
 				}
 			}
 
-			const endpoint = `/accounts/${accountId}/templates?${params.toString()}`;
+			const endpoint = `/accounts/${accountId}/account-channels?${params.toString()}`;
+
 			const responseData = await apiRequest.call(this, 'GET', endpoint);
 			returnData.push({ json: responseData });
 		} catch (error) {
@@ -116,22 +131,22 @@ export async function executeListTemplates(this: IExecuteFunctions): Promise<any
 	return [returnData];
 }
 
-export class ListTemplates implements INodeType {
+export class ListChannels implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'List Templates',
-		name: 'listTemplates',
+		displayName: 'List Channels',
+		name: 'listChannels',
 		group: ['output'],
 		version: 1,
-		description: 'List all templates from Poli API',
+		description: 'List channels from Poli API',
 		defaults: {
-			name: 'List Templates',
+			name: 'List Channels',
 		},
 		inputs: ['main'],
 		outputs: ['main'],
-		properties: listTemplatesFields,
+		properties: listChannelsFields,
 	};
 
-	async execute(this: IExecuteFunctions) {
-		return executeListTemplates.call(this);
+	async execute(this: IExecuteFunctions): Promise<any> {
+		return executeListChannels.call(this);
 	}
 }

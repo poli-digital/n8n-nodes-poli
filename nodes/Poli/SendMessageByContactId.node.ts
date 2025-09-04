@@ -1,18 +1,17 @@
 import { IExecuteFunctions, INodeType, INodeTypeDescription, JsonObject } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
 import { apiRequest } from './transport';
-import { getParameterSafe } from './utils/parameterUtils';
 
-export class SendMessageByPhoneNumber implements INodeType {
+export class SendMessageByContactId implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'Send Message By Phone Number',
-    name: 'sendMessageByPhoneNumber',
+    displayName: 'Send Message By Contact ID',
+    name: 'sendMessageByContactId',
     icon: 'file:poli.svg',
     group: ['output'],
     version: 1,
-    description: 'Send a message to a phone number',
+    description: 'Send a message to a contact by ID',
     defaults: {
-      name: 'Send Message By Phone Number',
+      name: 'Send Message By Contact ID',
     },
     inputs: ['main'],
     outputs: ['main'],
@@ -24,15 +23,8 @@ export class SendMessageByPhoneNumber implements INodeType {
     ],
     properties: [
       {
-        displayName: 'Account ID',
-        name: 'accountIdMessage',
-        type: 'string',
-        default: '',
-        required: true,
-      },
-      {
-        displayName: 'Phone Number',
-        name: 'phoneNumber',
+        displayName: 'Contact ID',
+        name: 'contactId',
         type: 'string',
         default: '',
         required: true,
@@ -59,20 +51,20 @@ export class SendMessageByPhoneNumber implements INodeType {
 
     for (let i = 0; i < items.length; i++) {
       try {
-        const accountId = getParameterSafe(this, 'accountIdMessage', i, '', true);
-        const phoneNumber = getParameterSafe(this, 'phoneNumber', i, '', true);
-        const accountChannelUuid = getParameterSafe(this, 'accountChannelUuid', i, '', true);
-        const text = getParameterSafe(this, 'text', i, 'Teste de mensagem');
+        const contactId = this.getNodeParameter('contactId', i);
+        const accountChannelUuid = this.getNodeParameter('accountChannelUuid', i);
+        const text = this.getNodeParameter('text', i);
 
         const body = {
           provider: 'WHATSAPP',
           account_channel_uuid: accountChannelUuid,
           type: 'TEXT',
           version: 'v3',
+          direction: 'OUT',
           components: { body: { text } },
         };
 
-        const endpoint = `/accounts/${accountId}/contacts/${encodeURIComponent(phoneNumber?.toString() || '')}/messages?include=contact`;
+        const endpoint = `/contacts/${contactId}/messages`;
         const responseData = await apiRequest.call(this, 'POST', endpoint, body);
         returnData.push({ json: responseData });
       } catch (error) {
